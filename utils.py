@@ -106,30 +106,30 @@ def process_row(row):
     frame = cv2.imdecode(buff, flags=1)
     frames = list()
     result = object_detect_model.detect(frame)
-
-    frame_str = encode_frame(frame)
-    sequences = update_frame_seqs(result['num_obj'], cam_id, result['labels'])
-    for seq in frame_segments[cam_id]['frame_seqs']:
-        frames.append({
-            'frame_id': uuid4().__str__(),
-            'frame': frame_str,
-            'frame_seq_id': seq['frame_seq_id']
-        })
-    data = {
-        'frames': frames,
-        'sequences': sequences
-    }
-    
-    json_data = json.dumps(data).encode('utf-8')
-    print(json_data)
+    print(result)
+    # frame_str = encode_frame(frame)
+    # sequences = update_frame_seqs(result['num_obj'], cam_id, result['labels'])
+    # for seq in frame_segments[cam_id]['frame_seqs']:
+    #     frames.append({
+    #         'frame_id': uuid4().__str__(),
+    #         'frame': frame_str,
+    #         'frame_seq_id': seq['frame_seq_id']
+    #     })
+    # data = {
+    #     'frames': frames,
+    # #     'sequences': sequences
+    # }
+    # #
+    # json_data = json.dumps(data).encode('utf-8')
+    # print(json_data)
     # result = requests.post(url=url, data=json_data, headers=headers)
     # print(result)
 
 
 def process_batch(df, epoch_id):
-    segments = reset_frame_segments(start_time)
-    seg_json = json.dumps(segments).encode('utf-8')
-    print(seg_json)
+    # segments = reset_frame_segments(start_time)
+    # seg_json = json.dumps(segments).encode('utf-8')
+    # print(seg_json)
     # requests.post(url=url+'/add-segments', data=seg_json, headers= headers)
     rows = df.collect()
     for row in rows:
