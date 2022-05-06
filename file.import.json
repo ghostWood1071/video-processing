@@ -1,7 +1,7 @@
 {
   "job": "videojob.py",
   "py_files": [
-    "utils.py",
+
     "ObjectDetection/Detection.py",
     "BodyPortionDetection/BodyDetector.py"
   ],
