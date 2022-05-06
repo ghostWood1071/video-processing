@@ -1,0 +1,15 @@
+{
+  "job": "videojob.py",
+  "py_files": [
+    "utils.py",
+    "ObjectDetection/Detection.py",
+    "BodyPortionDetection/BodyDetector.py"
+  ],
+  "files": [
+    "BodyPortionDetection/body.tflite",
+    "ObjectDetection/coco.names",
+    "ObjectDetection/model_cfg.json",
+    "ObjectDetection/yolo.h5",
+    "camera.config.json"
+  ]
+}
