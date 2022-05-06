@@ -18,7 +18,7 @@ session = SparkSession.builder\
           .appName("video-processing.com")\
           .getOrCreate()
 context = session.sparkContext
-context.setLogLevel("WARN")
+# context.setLogLevel("WARN")
 # define config info
 host = "192.168.248.6:9092, 192.168.248.7:9093"
 stream_format = "kafka"
