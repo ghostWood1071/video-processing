@@ -18,7 +18,7 @@ session = SparkSession.builder\
           .appName("video-processing.com")\
           .getOrCreate()
 context = session.sparkContext
-# context.setLogLevel("WARN")
+context.setLogLevel("WARN")
 # define config info
 host = "192.168.248.6:9092, 192.168.248.7:9093"
 stream_format = "kafka"
@@ -44,12 +44,11 @@ data_streaming_df = streaming_df.select(col('value').cast('string').name('value'
 def process_row(row):
     cam_id = row[0]
     string = row[1]
-    # jpg_origin = base64.b64decode(string)
-    # buff = np.frombuffer(jpg_origin, dtype=np.uint8)
-    # frame = cv2.imdecode(buff, flags=1)
-    # result = object_detect_model.detect(frame)
-    # print(result)
-    print(string)
+    jpg_origin = base64.b64decode(string)
+    buff = np.frombuffer(jpg_origin, dtype=np.uint8)
+    frame = cv2.imdecode(buff, flags=1)
+    result = object_detect_model.detect(frame)
+    print(result['labels'])
 
 
 def process_batch(df, epoch_id):
