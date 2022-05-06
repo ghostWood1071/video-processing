@@ -44,11 +44,12 @@ data_streaming_df = streaming_df.select(col('value').cast('string').name('value'
 def process_row(row):
     cam_id = row[0]
     string = row[1]
-    jpg_origin = base64.b64decode(string)
-    buff = np.frombuffer(jpg_origin, dtype=np.uint8)
-    frame = cv2.imdecode(buff, flags=1)
-    result = object_detect_model.detect(frame)
-    print(result)
+    # jpg_origin = base64.b64decode(string)
+    # buff = np.frombuffer(jpg_origin, dtype=np.uint8)
+    # frame = cv2.imdecode(buff, flags=1)
+    # result = object_detect_model.detect(frame)
+    # print(result)
+    print(string)
 
 
 def process_batch(df, epoch_id):
