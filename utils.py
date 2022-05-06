@@ -23,6 +23,7 @@ f.close()
 url = "http://192.168.248.1:1071"
 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
+
 def round_seconds(date_time):
     if date_time.microsecond >= 500_000:
         date_time += dt.timedelta(seconds=1)
@@ -44,11 +45,13 @@ for cam_ids in cameras:
         'finish_time': round_seconds(datetime.now()).__str__()
     }
 
+
 def encode_frame(frame):
     _, buff = cv2.imencode('.jpg', frame)
     ba64 = base64.b64encode(buff)
-    b64json = base64.decode()
+    b64json = ba64.decode()
     return b64json
+
 
 def reset_frame_segments(st_time):
     current = time.time()
@@ -130,6 +133,6 @@ def process_batch(df, epoch_id):
     # requests.post(url=url+'/add-segments', data=seg_json, headers= headers)
     rows = df.collect()
     for row in rows:
-         process_row(row)
+        process_row(row)
 
 
