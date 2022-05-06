@@ -48,7 +48,7 @@ def process_row(row):
     string = row[1]
     frame = decode_frame(string)
     result = object_detect_model.detect(frame)
-    result_encode = encode_frame(result)
+    result_encode = encode_frame(result['frame'])
     db_buss.update_frame_seqs(result['num_obj'], cam_id, result['labels'])
     frames = db_buss.create_frame(db_buss.segments[cam_id]['frame_seqs'], result_encode)
     print(result['labels'])
