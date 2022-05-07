@@ -5,13 +5,9 @@ import numpy as np
 import cv2
 import tensorflow as tf
 from tflite_support import metadata
-
+from ColorClassification.ColorDetection import DetectColorModel
 Interpreter = tf.lite.Interpreter
 load_delegate = tf.lite.experimental.load_delegate
-from PIL import Image
-
-
-# pylint: enable=g-import-not-at-top
 
 
 class ObjectDetectorOptions(NamedTuple):
@@ -270,19 +266,21 @@ _FONT_THICKNESS = 1
 _TEXT_COLOR = (0, 0, 255)  # red
 
 
-def visualize(image: np.ndarray, detections: List[Detection],) -> List[dict]:
-    result = list()
+def visualize(image: np.ndarray, detections: List[Detection], color_detector: DetectColorModel) -> dict:
+    result = dict()
     for detection in detections:
         start_point = detection.bounding_box.left, detection.bounding_box.top
         end_point = detection.bounding_box.right, detection.bounding_box.bottom
         object_frame = image[detection.bounding_box.left:detection.bounding_box.right,
                              detection.bounding_box.top:detection.bounding_box.bottom]
         # Draw label and score
+        color = color_detector.detect(object_frame)
         category = detection.categories[0].label
-        result.append({
+        result[category] = {
             'frame': object_frame,
-            'label': category
-        })
+            'label': category,
+            'color': color
+        }
     return result
 
 
@@ -296,8 +294,9 @@ class BodyPortionDetector:
             score_threshold=DETECTION_THRESHOLD,
         )
         self.detector = ObjectDetector(model_path=TFLITE_MODEL_PATH, options=options)
+        self.color_detector = DetectColorModel()
 
-    def detect(self, image_np: np.ndarray) -> List[dict]:
+    def detect(self, image_np: np.ndarray) -> dict:
         detections = self.detector.detect(image_np)
-        image_np = visualize(image_np, detections)
+        image_np = visualize(image_np, detections, self.color_detector)
         return image_np

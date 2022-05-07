@@ -1,11 +1,13 @@
 {
   "job": "videojob.py",
   "py_files": [
-
+    "utils.py",
+    "ColorClassification/ColorDetection.py",
     "ObjectDetection/Detection.py",
     "BodyPortionDetection/BodyDetector.py"
   ],
   "files": [
+    "ColorClassification/colors.csv",
     "BodyPortionDetection/body.tflite",
     "ObjectDetection/coco.names",
     "ObjectDetection/model_cfg.json",

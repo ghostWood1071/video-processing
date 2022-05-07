@@ -49,9 +49,14 @@ def process_row(row):
     frame = decode_frame(string)
     result = object_detect_model.detect(frame)
     result_encode = encode_frame(result['frame'])
+
+    # update frame if exists extra object
     db_buss.update_frame_seqs(result['num_obj'], cam_id, result['labels'])
-    frames = db_buss.create_frame(db_buss.segments[cam_id]['frame_seqs'], result_encode)
-    print(result['labels'])
+
+    # create frame according frame_sequences
+    frames = db_buss.create_frame(db_buss.segments[cam_id]['frame_seqs'], result_encode, result['frame'])
+    things = db_buss.create_things(cam_id, frames)
+    people = db_buss.create_people(cam_id, frames, body_portion_model)
 
 
 def process_batch(df, epoch_id):

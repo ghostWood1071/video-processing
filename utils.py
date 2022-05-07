@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 import datetime as dt
 from uuid import uuid4
-
+from BodyPortionDetect.BodyDetector import  BodyPortionDetector
 import cv2
 import numpy as np
 import requests
@@ -104,47 +104,44 @@ class DatabaseBusiness:
                 frame_seqs.append(frame_seq)
             return exts
 
-    def create_frame(self, frame_seq, b64_frame):
+    def create_frame(self, frame_seq, b64_frame, frame):
         frames = list()
         for i in frame_seq:
             frames.append({
                 'frame_id': uuid4().__str__(),
                 'frame': b64_frame,
+                'frame_matrix': frame,
                 'frame_seq_id': i['frame_seq_id']
             })
         return frames
-# def process_row(row):
-#     cam_id = row[0]
-#     string = row[1]
-#     frame = decode_frame(string)
-#     frames = list()
-#     result = object_detect_model.detect(frame)
-#     frame_str = encode_frame(result['frame'])
-#     sequences = update_frame_seqs(result['num_obj'], cam_id, result['labels'])
-#     for seq in frame_segments[cam_id]['frame_seqs']:
-#         frames.append({
-#             'frame_id': uuid4().__str__(),
-#             'frame': frame_str,
-#             'frame_seq_id': seq['frame_seq_id']
-#         })
-#     data = {
-#         'frames': frames,
-#     #     'sequences': sequences
-#     }
-#     #
-#     json_data = json.dumps(data).encode('utf-8')
-#     print(json_data)
-#     result = requests.post(url=url, data=json_data, headers=headers)
-#     print(result)
-#
-#
-#     # def process_batch(df, epoch_id):
-#     #     # segments = reset_frame_segments(start_time)
-#     #     # seg_json = json.dumps(segments).encode('utf-8')
-#     #     # print(seg_json)
-#     #     # requests.post(url=url+'/add-segments', data=seg_json, headers= headers)
-#     #     rows = df.collect()
-#     #     for row in rows:
-#     #         process_row(row)
+
+    def create_things(self, cam_id, frames):
+        frame_seqs = self.segments[cam_id]['frame_seqs']
+        things = list()
+        for i, frame in enumerate(frames):
+            if frame_seqs[i]['description'] != 'person':
+                things.append({
+                    'thing_id': uuid4().__str__(),
+                    'frame_id': frame['frame_id'],
+                    'name': frame_seqs[i]['description'],
+                    'description': ''
+                })
+        return things
+
+    def create_people(self, cam_id, frames, body_portion_model: BodyPortionDetector):
+        frame_seqs = self.segments[cam_id]['frame_seqs']
+        people = list()
+        for i, frame in enumerate(frames):
+            if frame_seqs[i]['description'] == 'person':
+                result = body_portion_model.detect(frame['frame_matrix'])
+                people.append({
+                    'person_id': uuid4().__str__(),
+                    'frame_id': frames['frame_id'],
+                    'upper': result.get('upper').get('color'),
+                    'lower': result.get('lower').get('color')
+                })
+        return people
+
+
 
 
