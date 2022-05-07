@@ -274,6 +274,7 @@ def visualize(image: np.ndarray, detections: List[Detection], color_detector: De
         object_frame = image[detection.bounding_box.left:detection.bounding_box.right,
                              detection.bounding_box.top:detection.bounding_box.bottom]
         # Draw label and score
+        print(object_frame.shape)
         color = color_detector.detect(object_frame)
         category = detection.categories[0].label
         result[category] = {
