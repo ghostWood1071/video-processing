@@ -62,7 +62,8 @@ def post_sequences(sequences):
 def post_frames(frames):
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     frame_post = copy.deepcopy(frames)
-    frame_post['frame_matrix'] = None
+    for frame in frame_post:
+        frame['frame_matrix'] = None
     data = json.dumps(frame_post)
     result = requests.post('http://192.168.248.1:1071/send-frames', data=data, headers=headers)
     return result
