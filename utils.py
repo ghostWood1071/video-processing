@@ -136,7 +136,7 @@ class DatabaseBusiness:
                 result = body_portion_model.detect(frame['frame_matrix'])
                 people.append({
                     'person_id': uuid4().__str__(),
-                    'frame_id': frames['frame_id'],
+                    'frame_id': frame['frame_id'],
                     'upper': result.get('upper').get('color'),
                     'lower': result.get('lower').get('color')
                 })
