@@ -8,6 +8,7 @@ from BodyPortionDetect.BodyDetector import  BodyPortionDetector
 import cv2
 import numpy as np
 import requests
+import copy
 
 
 def encode_frame(frame):
@@ -60,7 +61,9 @@ def post_sequences(sequences):
 
 def post_frames(frames):
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    data = json.dumps(frames)
+    frame_post = copy.deepcopy(frames)
+    frame_post['frame_matrix'] = None
+    data = json.dumps(frame_post)
     result = requests.post('http://192.168.248.1:1071/send-frames', data=data, headers=headers)
     return result
 
