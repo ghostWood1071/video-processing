@@ -38,6 +38,12 @@ def round_seconds(date_time):
     return date_time.replace(microsecond=0)
 
 
+def get_color(portion: dict) -> str:
+    if not portion:
+        return ''
+    return portion.get('color')
+
+
 class DatabaseBusiness:
     def __init__(self):
         self.start_time = time.time()
@@ -137,8 +143,8 @@ class DatabaseBusiness:
                 people.append({
                     'person_id': uuid4().__str__(),
                     'frame_id': frame['frame_id'],
-                    'upper': result.get('upper').get('color'),
-                    'lower': result.get('lower').get('color')
+                    'upper': get_color(result.get('upper')),
+                    'lower': get_color(result.get('lower'))
                 })
         return people
 
