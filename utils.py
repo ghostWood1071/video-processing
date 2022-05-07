@@ -44,6 +44,41 @@ def get_color(portion: dict) -> str:
     return portion.get('color')
 
 
+def post_segments(segments):
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    data = json.dumps(segments)
+    result = requests.post('http://192.168.248.1:1071/send-segments', data=data, headers=headers)
+    return result
+
+
+def post_sequences(sequences):
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    data = json.dumps(sequences)
+    result = requests.post('http://192.168.248.1:1071/send-sequences', data=data, headers=headers)
+    return result
+
+
+def post_frames(frames):
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    data = json.dumps(frames)
+    result = requests.post('http://192.168.248.1:1071/send-frames', data=data, headers=headers)
+    return result
+
+
+def post_people(people):
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    data = json.dumps(people)
+    result = requests.post('http://192.168.248.1:1071/send-people', data=data, headers=headers)
+    return result
+
+
+def post_things(things):
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    data = json.dumps(things)
+    result = requests.post('http://192.168.248.1:1071/send-things', data=data, headers=headers)
+    return result
+
+
 class DatabaseBusiness:
     def __init__(self):
         self.start_time = time.time()
@@ -68,6 +103,7 @@ class DatabaseBusiness:
                 'start_time': start_time_detail,
                 'finish_time': round_seconds(datetime.now()).__str__()
             }
+        post_segments(frame_segments)
         return frame_segments
 
     def reset_frame_segments(self):
@@ -87,6 +123,7 @@ class DatabaseBusiness:
                 }
                 self.segments[cam_id] = new_segment
                 self.start_time = time.time()
+            post_segments(self.segments)
 
     def update_frame_seqs(self, num_obj, cam_id, obj_list):
         frame_seqs = self.segments[cam_id]['frame_seqs']
@@ -108,6 +145,7 @@ class DatabaseBusiness:
                 # create_frame_seq
                 exts.append(frame_seq)
                 frame_seqs.append(frame_seq)
+            post_sequences(exts)
             return exts
 
     def create_frame(self, frame_seq, b64_frame, frame):
@@ -119,6 +157,7 @@ class DatabaseBusiness:
                 'frame_matrix': frame,
                 'frame_seq_id': i['frame_seq_id']
             })
+        post_frames(frames)
         return frames
 
     def create_things(self, cam_id, frames):
@@ -132,6 +171,7 @@ class DatabaseBusiness:
                     'name': frame_seqs[i]['description'],
                     'description': ''
                 })
+        post_things(things)
         return things
 
     def create_people(self, cam_id, frames, body_portion_model: BodyPortionDetector):
@@ -146,6 +186,7 @@ class DatabaseBusiness:
                     'upper': get_color(result.get('upper')),
                     'lower': get_color(result.get('lower'))
                 })
+        post_people(people)
         return people
 
 
