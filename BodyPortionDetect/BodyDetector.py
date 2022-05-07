@@ -269,8 +269,8 @@ _TEXT_COLOR = (0, 0, 255)  # red
 def visualize(image: np.ndarray, detections: List[Detection], color_detector: DetectColorModel) -> dict:
     result = dict()
     for detection in detections:
-        start_point = detection.bounding_box.left, detection.bounding_box.top
-        end_point = detection.bounding_box.right, detection.bounding_box.bottom
+        # start_point = detection.bounding_box.left, detection.bounding_box.top
+        # end_point = detection.bounding_box.right, detection.bounding_box.bottom
         object_frame = image[detection.bounding_box.left:detection.bounding_box.right,
                              detection.bounding_box.top:detection.bounding_box.bottom]
         # Draw label and score

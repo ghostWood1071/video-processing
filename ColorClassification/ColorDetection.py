@@ -20,8 +20,8 @@ class DetectColorModel:
         return color_name
 
     def detect(self, img):
-        (h, w) = img.shape[:2]
-        b, g, r = img[h//2, w//2]
+        (w, h) = img.shape[:2]
+        b, g, r = img[w//2, h//2]
         b = int(b)
         g = int(g)
         r = int(r)
