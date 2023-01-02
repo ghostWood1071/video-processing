@@ -53,7 +53,7 @@ return_type = ArrayType(StructType([
   StructField('name', StringType())
 ]), containsNull=True)
 
-@pandas_udf(returnType=return_type)
+@pandas_udf(returnType=StringType())
 def process_batch_udf(data):
   print('asddddddddddddddddddddddddddddddddddddd: ', type(data))
   # main_time = time.value
