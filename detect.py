@@ -200,9 +200,9 @@ def run(
                     label = f'{names[c]} {conf:.2f}'
                     im0 = draw_box(im0, xyxy, label, colors(c, True), line_width=line_thickness)
                     obj = {
-                        'video.video_id': video_id,
-                        'video.segment_id': str(segment_id),
-                        'video.frame_id': str(frame_id),
+                        'video_id': video_id,
+                        'segment_id': str(segment_id),
+                        'frame_id': str(frame_id),
                         'object.name': names[c],
                         #'video.frame': encode_frame(im0)
                     }
@@ -214,7 +214,7 @@ def run(
                     #     #'video.frame': encode_frame(im0)
                     # ]
                     # obj = Row(video_id, str(segment_id), str(frame_id), names[c], encode_frame(im0))
-                    result.append(str(obj))
+                    result.append(obj)
     return result
 
 

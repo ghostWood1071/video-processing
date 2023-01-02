@@ -63,7 +63,8 @@ def process_batch_udf(data):
   segment_id = uuid4()
   results = run(dist_weight.value, data.values.tolist(), segment_id)
   # return pd.DataFrame(results)
-  return pd.Series(results)
+
+  return pd.DataFrame(results)
 
 
 # query data
