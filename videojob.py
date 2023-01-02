@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StringType, ArrayType, Row
+from pyspark.sql.types import StructType, StringType, ArrayType, Row, StructField
 #from pyspark.sql import Row
 from pyspark.sql.functions import *
 import base64
@@ -46,8 +46,14 @@ streaming_df = session.\
                option("subscribe", topic).\
                load()
 
+return_type = ArrayType(StructType([
+  StructField('video_id', StringType()),
+  StructField('segment_id', StringType()),
+  StructField('frame_id', StringType()),
+  StructField('name', StringType())
+]), containsNull=True)
 
-@pandas_udf(returnType=ArrayType(StringType(), containsNull= True))
+@pandas_udf(returnType=return_type)
 def process_batch_udf(data):
   # main_time = time.value
   # this_time = datetime.now()
