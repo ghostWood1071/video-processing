@@ -51,6 +51,7 @@ streaming_df = session.\
 @pandas_udf(returnType=StructType())
 def process_batch_udf(data):
   weights = torch.load(dist_weight.value)
+  print(data)
   # main_time = time.value
   # this_time = datetime.now()
   # if (this_time - main_time).total_seconds()/60 > 10:
