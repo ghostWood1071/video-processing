@@ -214,7 +214,7 @@ def run(
                     #     #'video.frame': encode_frame(im0)
                     # ]
                     # obj = Row(video_id, str(segment_id), str(frame_id), names[c], encode_frame(im0))
-                    result.append(obj)
+                    result.append(str(obj))
     return result
 
 
