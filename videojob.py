@@ -28,10 +28,10 @@ context.addFile("yolov5s.pt")
 # define config info
 host = "192.168.56.7:9092,192.168.56.8:9093"
 stream_format = "kafka"
-topic = "video2"
+topic = "video3"
 segment_id = uuid4()
 
-model_weights = torch.load('yolov5s.pt', map_location='cpu' )
+model_weights = torch.load('yolov5s.pt', map_location='cpu')
 dist_weight = context.broadcast(model_weights)
 time = context.broadcast(datetime.now())
 
