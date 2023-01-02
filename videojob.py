@@ -35,7 +35,7 @@ with open('yolov5s.pt', mode='rb') as f:
     buff = io.BytesIO(f.read())
     #weights =   #torch.load('yolov5s.pt', map_location='cpu' )
 dist_weight = context.broadcast(buff)
-time = datetime.now()
+time = context.broadcast(datetime.now())
 
 from detect import run
 
@@ -50,12 +50,12 @@ streaming_df = session.\
 
 @pandas_udf(returnType=StructType())
 def process_batch_udf(data):
-  bff = dist_weight.value
-  weights = torch.load(bff)
-  this_time = datetime.now()
-  if (this_time - time).total_seconds()/60 > 10:
-    time = this_time
-    segment_id = uuid4()
+  weights = torch.load(dist_weight.value)
+  # main_time = time.value
+  # this_time = datetime.now()
+  # if (this_time - main_time).total_seconds()/60 > 10:
+  #   time = this_time
+  segment_id = uuid4()
   results = run(weights, data.values.tolist(), segment_id)
   return pd.DataFrame(results)
 
