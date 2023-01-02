@@ -22,7 +22,7 @@ session = SparkSession.builder\
 context = session.sparkContext
 context.setLogLevel("WARN")
 
-context.addPyFile("model.zip")
+context.addPyFile("models.zip")
 context.addPyFile("utils.zip")
 context.addFile("yolov5s.pt")
 # define config info
