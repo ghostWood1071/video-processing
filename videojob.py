@@ -29,7 +29,7 @@ context.addFile("yolov5s.pt")
 # define config info
 host = "192.168.56.7:9092,192.168.56.8:9093"
 stream_format = "kafka"
-topic = "hadoop"
+topic = "hadoop3"
 segment_id = uuid4()
 
 model_weights = torch.load('yolov5s.pt', map_location='cpu')
@@ -70,8 +70,8 @@ def process_batch_udf(data):
 # query data
 cols = 'id string, frame string'
 data_streaming_df = streaming_df.select(col('value').cast('string').name('value'))\
-                                .select(from_json(col('value'), cols).name('value'))\
-                                .select(process_batch_udf(col('value')))
+                                .select(from_json(col('value'), cols).name('value'))#\
+                                # .select(process_batch_udf(col('value')))
 
 
 query = data_streaming_df.writeStream.foreach(lambda row: print(row)).start()
