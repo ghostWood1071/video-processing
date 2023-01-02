@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StringType, ArrayType
-from pyspark.sql import Row
+from pyspark.sql.types import StructType, StringType, ArrayType, Row
+#from pyspark.sql import Row
 from pyspark.sql.functions import *
 import base64
 import json
