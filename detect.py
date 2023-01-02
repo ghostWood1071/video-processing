@@ -206,7 +206,7 @@ def run(
                         'object.name': names[c],
                         #'video.frame': encode_frame(im0)
                     }
-                    result.append(obj)
+                    result.append(str(obj))
     return result
 
 

@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType
+from pyspark.sql.types import StructType, StringType
 from pyspark.sql.functions import *
 import base64
 import json
@@ -48,7 +48,7 @@ streaming_df = session.\
                load()
 
 
-@pandas_udf(returnType=StructType())
+@pandas_udf(returnType=StringType())
 def process_batch_udf(data):
   weights = torch.load(dist_weight.value)
   print(data)
@@ -58,7 +58,8 @@ def process_batch_udf(data):
   #   time = this_time
   segment_id = uuid4()
   results = run(weights, data.values.tolist(), segment_id)
-  return pd.DataFrame(results)
+  # return pd.DataFrame(results)
+  return pd.Series(results)
 
 
 # query data
