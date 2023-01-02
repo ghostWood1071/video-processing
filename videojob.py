@@ -31,10 +31,8 @@ stream_format = "kafka"
 topic = "videos"
 segment_id = uuid4()
 
-with open('yolov5s.pt', mode='rb') as f:
-    buff = io.BytesIO(f.read())
-    #weights =   #torch.load('yolov5s.pt', map_location='cpu' )
-dist_weight = context.broadcast(buff)
+model_weights = torch.load('yolov5s.pt', map_location='cpu' )
+dist_weight = context.broadcast(model_weights)
 time = context.broadcast(datetime.now())
 
 from detect import run
@@ -50,14 +48,13 @@ streaming_df = session.\
 
 @pandas_udf(returnType=StringType())
 def process_batch_udf(data):
-  weights = torch.load(dist_weight.value)
   print(data)
   # main_time = time.value
   # this_time = datetime.now()
   # if (this_time - main_time).total_seconds()/60 > 10:
   #   time = this_time
   segment_id = uuid4()
-  results = run(weights, data.values.tolist(), segment_id)
+  results = run(dist_weight.value, data.values.tolist(), segment_id)
   # return pd.DataFrame(results)
   return pd.Series(results)
 
