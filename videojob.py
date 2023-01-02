@@ -1,4 +1,3 @@
-
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType
 from pyspark.sql.functions import *
@@ -10,32 +9,34 @@ from uuid import uuid4
 import cv2
 import numpy as np
 import torch
-from yolov5.detect import run
+#from yolov5.detect import run
 import pandas as pd
-
+import io
 
 
 # create session and context
 session = SparkSession.builder\
           .appName("video-processing.com")\
           .getOrCreate()
-session.conf.set("spark.sql.adaptive.enabled",True)
+
 context = session.sparkContext
 context.setLogLevel("WARN")
 
-context.addPyFile("/yolov5.zip")
-context.addFile("/yolov5s.pt")
-
+context.addPyFile("yolov5.zip")
+context.addFile("yolov5s.pt")
 # define config info
-host = "kafka1:9092, kafka1:9093"
+host = "192.168.56.7:9092,192.168.56.8:9093"
 stream_format = "kafka"
-topic = "jesus"
+topic = "videos"
 segment_id = uuid4()
-weights = torch.load('yolov5/yolov5s.pt', map_location='cpu' )
-dist_weight = context.broadcast(weights)
-time = datetime.now() 
 
+with open('yolov5s.pt', mode='rb') as f:
+    buff = io.BytesIO(f.read())
+    #weights =   #torch.load('yolov5s.pt', map_location='cpu' )
+dist_weight = context.broadcast(buff)
+time = datetime.now()
 
+from detect import run
 
 # start streaming from kafka source
 streaming_df = session.\
@@ -48,12 +49,13 @@ streaming_df = session.\
 
 @pandas_udf(returnType=StructType())
 def process_batch_udf(data):
+  bff = dist_weight.value
+  weights = torch.load(bff)
   this_time = datetime.now()
   if (this_time - time).total_seconds()/60 > 10:
     time = this_time
     segment_id = uuid4()
-  w = dist_weight.value
-  results = run(w, data.values.tolist(), segment_id)
+  results = run(weights, data.values.tolist(), segment_id)
   return pd.DataFrame(results)
 
 
@@ -64,12 +66,6 @@ data_streaming_df = streaming_df.select(col('value').cast('string').name('value'
                                 .select(process_batch_udf(col('value')))
 
 
-#query = data_streaming_df.writeStream.foreach(lambda row: print(row)).start()
-# #query = data_streaming_df.writeStream.start()
-# query.awaitTermination()
-
-
-ds = data_streaming_df.writeStream.format("kafka").option("kafka.bootstrap.servers", host).option("topic", "result").start()
-
-
-
+query = data_streaming_df.writeStream.foreach(lambda row: print(row)).start()
+#query = data_streaming_df.writeStream.start()
+query.awaitTermination()

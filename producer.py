@@ -5,7 +5,7 @@ import time
 import cv2
 from kafka import KafkaProducer
 
-hosts = ['localhost:9092', 'localhost:9093']
+hosts = ['192.168.56.7:9092', '192.168.56.8:9093']
 camera_id = "c370a4d1-f4b9-4906-a66d-a7292b86ee3a"
 
 
@@ -22,7 +22,7 @@ def encode(frame):
 def publish_camera(topic, video):
     producer = KafkaProducer(bootstrap_servers=hosts, value_serializer=lambda x: encode(x))
    
-    camera = cv2.VideoCapture(video)
+    camera = cv2.VideoCapture(0)
     try:
         while True:
             success, frame = camera.read()
