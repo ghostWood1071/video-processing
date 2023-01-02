@@ -37,7 +37,7 @@ def publish_camera(topic, video):
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        topic_name = "video10"  # sys.argv[1]
+        topic_name = "hadoop"  # sys.argv[1]
         video_path = "c"  # sys.argv[2]
         publish_camera(topic_name, video_path)
     else:
