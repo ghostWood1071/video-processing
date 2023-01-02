@@ -53,7 +53,7 @@ return_type = ArrayType(StructType([
   StructField('name', StringType())
 ]), containsNull=True)
 
-@pandas_udf(returnType=return_type)
+@pandas_udf(returnType=return_type, f=PandasUDFType.GROUPED_MAP)
 def process_batch_udf(data):
   # main_time = time.value
   # this_time = datetime.now()
@@ -62,7 +62,7 @@ def process_batch_udf(data):
   segment_id = uuid4()
   results = run(dist_weight.value, data.values.tolist(), segment_id)
   # return pd.DataFrame(results)
-  return pd.Series(results)
+  return pd.DataFrame(results)
 
 
 # query data
