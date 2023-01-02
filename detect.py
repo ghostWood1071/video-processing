@@ -10,7 +10,7 @@ import cv2
 import torch.nn as nn
 import base64
 from uuid import uuid4
-
+from pyspark.sql import Row
 from  utils.dataloaders import letterbox
 from  utils.general import (LOGGER, ROOT, Profile, check_requirements, non_max_suppression, scale_boxes)
 from  utils.torch_utils import  smart_inference_mode
@@ -199,14 +199,15 @@ def run(
                     c = int(cls)  # integer class
                     label = f'{names[c]} {conf:.2f}'
                     im0 = draw_box(im0, xyxy, label, colors(c, True), line_width=line_thickness)
-                    obj = {
-                        'video.video_id': video_id,
-                        'video.segment_id': str(segment_id),
-                        'video.frame_id': str(frame_id),
-                        'object.name': names[c],
-                        #'video.frame': encode_frame(im0)
-                    }
-                    result.append(str(obj))
+                    # obj = {
+                    #     'video.video_id': video_id,
+                    #     'video.segment_id': str(segment_id),
+                    #     'video.frame_id': str(frame_id),
+                    #     'object.name': names[c],
+                    #     #'video.frame': encode_frame(im0)
+                    # }
+                    obj = Row(video_id, str(segment_id), str(frame_id), names[c], encode_frame(im0))
+                    result.append(obj)
     return result
 
 

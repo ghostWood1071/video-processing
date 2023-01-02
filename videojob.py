@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StringType
+from pyspark.sql.types import StructType, StringType, ArrayType
+from pyspark.sql import Row
 from pyspark.sql.functions import *
 import base64
 import json
@@ -46,9 +47,8 @@ streaming_df = session.\
                load()
 
 
-@pandas_udf(returnType=StringType())
+@pandas_udf(returnType=ArrayType(Row))
 def process_batch_udf(data):
-  print(data)
   # main_time = time.value
   # this_time = datetime.now()
   # if (this_time - main_time).total_seconds()/60 > 10:
