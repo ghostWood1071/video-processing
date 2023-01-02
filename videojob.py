@@ -47,7 +47,7 @@ streaming_df = session.\
                load()
 
 
-@pandas_udf(returnType=ArrayType(Row))
+@pandas_udf(returnType=ArrayType(StringType(), containsNull= True))
 def process_batch_udf(data):
   # main_time = time.value
   # this_time = datetime.now()
