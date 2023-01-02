@@ -46,16 +46,9 @@ streaming_df = session.\
                option("subscribe", topic).\
                load()
 
-return_type = ArrayType(StructType([
-  StructField('video_id', StringType()),
-  StructField('segment_id', StringType()),
-  StructField('frame_id', StringType()),
-  StructField('name', StringType())
-]), containsNull=True)
 
 @pandas_udf(returnType=StringType())
 def process_batch_udf(data):
-  print('asddddddddddddddddddddddddddddddddddddd: ', type(data))
   # main_time = time.value
   # this_time = datetime.now()
   # if (this_time - main_time).total_seconds()/60 > 10:
@@ -70,8 +63,8 @@ def process_batch_udf(data):
 # query data
 cols = 'id string, frame string'
 data_streaming_df = streaming_df.select(col('value').cast('string').name('value'))\
-                                .select(from_json(col('value'), cols).name('value'))#\
-                                # .select(process_batch_udf(col('value')))
+                                .select(from_json(col('value'), cols).name('value'))\
+                                .select(process_batch_udf(col('value')))
 
 
 query = data_streaming_df.writeStream.foreach(lambda row: print(row)).start()
