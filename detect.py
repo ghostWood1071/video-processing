@@ -15,7 +15,7 @@ from  utils.dataloaders import letterbox
 from  utils.general import (LOGGER, ROOT, Profile, check_requirements, non_max_suppression, scale_boxes)
 from  utils.torch_utils import  smart_inference_mode
     # Ultralytics color palette https://ultralytics.com/
-
+from pandas import Series
 
 
 

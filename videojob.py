@@ -53,8 +53,9 @@ return_type = ArrayType(StructType([
   StructField('name', StringType())
 ]), containsNull=True)
 
-@pandas_udf(returnType=return_type, f=PandasUDFType.GROUPED_MAP)
+@pandas_udf(returnType=return_type)
 def process_batch_udf(data):
+  print('asddddddddddddddddddddddddddddddddddddd: ', type(data))
   # main_time = time.value
   # this_time = datetime.now()
   # if (this_time - main_time).total_seconds()/60 > 10:
