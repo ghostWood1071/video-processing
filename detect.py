@@ -10,7 +10,7 @@ import cv2
 import torch.nn as nn
 import base64
 from uuid import uuid4
-from pyspark.sql import Row
+from pyspark.sql.types import Row
 from  utils.dataloaders import letterbox
 from  utils.general import (LOGGER, ROOT, Profile, check_requirements, non_max_suppression, scale_boxes)
 from  utils.torch_utils import  smart_inference_mode
