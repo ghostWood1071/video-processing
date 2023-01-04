@@ -15,7 +15,7 @@ from  utils.dataloaders import letterbox
 from  utils.general import (LOGGER, ROOT, Profile, check_requirements, non_max_suppression, scale_boxes)
 from  utils.torch_utils import  smart_inference_mode
     # Ultralytics color palette https://ultralytics.com/
-from pandas import Series
+import pandas as pd
 
 
 
@@ -109,18 +109,19 @@ def decode_frame(string: str):
     frame = cv2.imdecode(buff, flags=1)
     return frame
 
-def loadData(row): 
+def loadData(dataframe):
+    row = dataframe.values.tolist()[0][0]
     torch.backends.cudnn.benchmark = True  
     img_size=np.array([640,640])
     stride=32 
     auto=True
-    frame= decode_frame(row[1])
+    frame= decode_frame(row['frame'])
     im0 = frame.copy()
     im = np.stack([letterbox(x, img_size, stride=stride, auto=auto)[0] for x in [im0]])  # resize
     im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW
     im = np.ascontiguousarray(im) 
     # print(f'type video_id: {type(row[0])}, im: {type(im)}, im0: {type(im0)}')
-    return row[0], im, im0
+    return row['id'], im, im0
 
 def draw_box(img, box, label, color=(128, 128, 128),txt_color=(255, 255, 255), line_width=10):
     p1, p2 = (int(box[0]), int(box[1])), (int(box[2]), int(box[3]))
@@ -199,23 +200,16 @@ def run(
                     c = int(cls)  # integer class
                     label = f'{names[c]} {conf:.2f}'
                     im0 = draw_box(im0, xyxy, label, colors(c, True), line_width=line_thickness)
+                    print(names[c])
                     obj = {
                         'video_id': video_id,
                         'segment_id': str(segment_id),
                         'frame_id': str(frame_id),
-                        'object.name': names[c],
-                        #'video.frame': encode_frame(im0)
+                        'name': names[c],
+                        'frame': encode_frame(im0)
                     }
-                    # obj = [
-                    #     video_id,
-                    #     str(segment_id),
-                    #     str(frame_id),
-                    #     names[c],
-                    #     #'video.frame': encode_frame(im0)
-                    # ]
-                    # obj = Row(video_id, str(segment_id), str(frame_id), names[c], encode_frame(im0))
-                    result.append(obj)
-    return result
+                    yield pd.DataFrame([obj])
+    
 
 
 # imgs = []

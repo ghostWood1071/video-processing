@@ -29,13 +29,14 @@ context.addFile("yolov5s.pt")
 # define config info
 host = "192.168.56.7:9092,192.168.56.8:9093"
 stream_format = "kafka"
-topic = "xmas"
-segment_id = uuid4()
+topic = "777"
 
 model_weights = torch.load('yolov5s.pt', map_location='cpu')
 dist_weight = context.broadcast(model_weights)
-time = context.broadcast(datetime.now())
-
+global time 
+time = datetime.now()
+global segment_id
+segment_id = uuid4()
 from detect import run
 
 # start streaming from kafka source
@@ -46,26 +47,35 @@ streaming_df = session.\
                option("subscribe", topic).\
                load()
 
+schema = StructType([
+  StructField('video_id', StringType()),
+  StructField('segment_id', StringType()),
+  StructField('frame_id', StringType()),
+  StructField('name', StringType()),
+  StructField('frame', StringType())
+])
 
-@pandas_udf(returnType=StringType())
 def process_batch_udf(data):
+  global time
+  global segment_id
   # main_time = time.value
-  # this_time = datetime.now()
-  # if (this_time - main_time).total_seconds()/60 > 10:
-  #   time = this_time
-  segment_id = uuid4()
-  results = run(dist_weight.value, data.values.tolist(), segment_id)
+  this_time = datetime.now()
+  if (this_time - time).total_seconds()/60 > 10:
+     time = this_time
+     segment_id = uuid4()
+  results = run(dist_weight.value, data, segment_id)
   # return pd.DataFrame(results)
 
-  return pd.Series(results)
+  return results
 
 
 # query data
 cols = 'id string, frame string'
 data_streaming_df = streaming_df.select(col('value').cast('string').name('value'))\
                                 .select(from_json(col('value'), cols).name('value'))\
-                                .select(process_batch_udf(col('value')))
-
+                                .mapInPandas(process_batch_udf, schema)\
+                                .select(col('video_id'), col('segment_id'), col('frame_id'), col('name'))
+                                #.select(process_batch_udf(col('value')))
 
 query = data_streaming_df.writeStream.foreach(lambda row: print(row)).start()
 #query = data_streaming_df.writeStream.start()
