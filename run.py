@@ -9,7 +9,7 @@ import os
 os.system(
 "sudo spark-submit " +
 "--packages " + 
-        "org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0 " +
+        "org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0, " +
         "com.hortonworks:shc-core:1.1.1-2.1-s_2.11 "+ 
 "videojob.py " + 
 "--repositories http://repo.hortonworks.com/content/groups/public/ " +
