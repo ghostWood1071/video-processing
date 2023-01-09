@@ -8,7 +8,7 @@ import os
 # file_names = ','.join(config['files'])
 os.system(
 "sudo spark-submit " +
-"--packages" + 
+"--packages " + 
         "org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0 " +
         "com.hortonworks:shc-core:1.1.1-2.1-s_2.11 "+ 
 "videojob.py " + 
