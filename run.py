@@ -13,7 +13,7 @@ os.system(
         "com.hortonworks:shc-core:1.1.1-2.1-s_2.11 "+ 
 "videojob.py " + 
 "--repositories http://repo.hortonworks.com/content/groups/public/ " +
-"--files /yolov5s.pt " 
+"--files /yolov5s.pt, hbase-site.xml " 
 "--py-files /models.zip, /utils.zip")
         #   + job_name +
         #   " --py-files "+py_file_names+" "
