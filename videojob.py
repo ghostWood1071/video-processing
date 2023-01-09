@@ -1,18 +1,13 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StringType, ArrayType, Row, StructField
-#from pyspark.sql import Row
+from pyspark.sql.types import StructType, StringType, StructField
 from pyspark.sql.functions import *
-import base64
 import json
 import time
 from datetime import datetime
 from uuid import uuid4
-import cv2
-import numpy as np
 import torch
-#from yolov5.detect import run
-import pandas as pd
-import io
+
+
 
 
 # create session and context
@@ -48,6 +43,7 @@ streaming_df = session.\
                load()
 
 schema = StructType([
+  StructField('key', StringType()),
   StructField('video_id', StringType()),
   StructField('segment_id', StringType()),
   StructField('frame_id', StringType()),
@@ -55,17 +51,28 @@ schema = StructType([
   StructField('frame', StringType())
 ])
 
+
+catalog = json.dumps({
+  "table":{"namespace":"default","name":"video-processing"},
+  "rowkey":"key",
+  "columns":{
+  "key":{"cf":"rowkey","col":"key","type":"string"},
+  "video_id":{"cf":"video","col":"video_id","type":"string"},
+  "segment_id":{"cf":"video","col":"segment_id","type":"string"},
+  "frame_id":{"cf":"video","col":"frame_id","type":"string"},
+  "name":{"cf":"object","col":"name","type":"string"},
+  "frame":{"cf":"object","col":"frame","type":"string"},
+  }
+})
+
 def process_batch_udf(data):
   global time
   global segment_id
-  # main_time = time.value
   this_time = datetime.now()
   if (this_time - time).total_seconds()/60 > 10:
      time = this_time
      segment_id = uuid4()
   results = run(dist_weight.value, data, segment_id)
-  # return pd.DataFrame(results)
-
   return results
 
 
@@ -74,9 +81,12 @@ cols = 'id string, frame string'
 data_streaming_df = streaming_df.select(col('value').cast('string').name('value'))\
                                 .select(from_json(col('value'), cols).name('value'))\
                                 .mapInPandas(process_batch_udf, schema)\
-                                .select(col('video_id'), col('segment_id'), col('frame_id'), col('name'))
-                                #.select(process_batch_udf(col('value')))
+                                .select(col('key'), col('video_id'), col('segment_id'), col('frame_id'), col('name'), col('frame'))
 
-query = data_streaming_df.writeStream.foreach(lambda row: print(row)).start()
-#query = data_streaming_df.writeStream.start()
+query = data_streaming_df.writeStream\
+.format('org.apache.hadoop.hbase.spark')\
+.option('hbase.table', 'video-processing')\
+.options(catalogs=catalog)\
+.option('hbase.config.resources', '/hbase-site.xml')\
+.foreach(lambda row: print(row)).start()
 query.awaitTermination()

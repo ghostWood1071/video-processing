@@ -202,6 +202,7 @@ def run(
                     im0 = draw_box(im0, xyxy, label, colors(c, True), line_width=line_thickness)
                     print(names[c])
                     obj = {
+                        'key': str(uuid4()),
                         'video_id': video_id,
                         'segment_id': str(segment_id),
                         'frame_id': str(frame_id),
