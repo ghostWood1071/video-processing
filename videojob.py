@@ -90,8 +90,7 @@ data_streaming_df = streaming_df.select(col('value').cast('string').name('value'
 
 query = data_streaming_df.writeStream\
 .format('org.apache.hadoop.hbase.spark')\
-.option('hbase.table', 'video-processing')\
 .options(catalogs=catalog)\
 .option('hbase.use.hbase.context', False)\
-.foreach(lambda row: print(row)).start()
+.foreach(lambda row: print(row['name'])).start()
 query.awaitTermination()
