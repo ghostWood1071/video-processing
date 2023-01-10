@@ -87,6 +87,7 @@ query = data_streaming_df.writeStream\
 .format('org.apache.hadoop.hbase.spark')\
 .option('hbase.table', 'video-processing')\
 .options(catalogs=catalog)\
+.option('hbase.use.hbase.context', False)\
 .option('hbase.config.resources', '/hbase-site.xml')\
 .foreach(lambda row: print(row)).start()
 query.awaitTermination()

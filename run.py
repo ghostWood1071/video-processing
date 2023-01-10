@@ -9,8 +9,7 @@ import os
 os.system(
 "sudo spark-submit " +
 "--packages " + 
-        "org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0, " +
-        "com.hortonworks:shc-core:1.1.0.2.6.5.360-2 "+ 
+        "org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0 " +
 "videojob.py " + 
 "--files /yolov5s.pt, hbase-site.xml " 
 "--py-files /models.zip, /utils.zip")
