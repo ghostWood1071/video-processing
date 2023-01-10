@@ -89,8 +89,9 @@ data_streaming_df = streaming_df.select(col('value').cast('string').name('value'
                                         col('frame'))
 
 query = data_streaming_df.writeStream\
-.format('org.apache.hadoop.hbase.spark')\
+.format("org.apache.hadoop.hbase.spark")\
 .options(catalogs=catalog)\
 .option('hbase.use.hbase.context', False)\
-.foreach(lambda row: print(row['name'])).start()
+#.foreach(lambda row: print(row['name']))\
+.start()
 query.awaitTermination()
