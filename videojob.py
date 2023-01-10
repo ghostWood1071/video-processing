@@ -81,13 +81,17 @@ cols = 'id string, frame string'
 data_streaming_df = streaming_df.select(col('value').cast('string').name('value'))\
                                 .select(from_json(col('value'), cols).name('value'))\
                                 .mapInPandas(process_batch_udf, schema)\
-                                .select(col('key'), col('video_id'), col('segment_id'), col('frame_id'), col('name'), col('frame'))
+                                .select(col('key'), 
+                                        col('video_id'), 
+                                        col('segment_id'), 
+                                        col('frame_id'), 
+                                        col('name'), 
+                                        col('frame'))
 
 query = data_streaming_df.writeStream\
 .format('org.apache.hadoop.hbase.spark')\
 .option('hbase.table', 'video-processing')\
 .options(catalogs=catalog)\
 .option('hbase.use.hbase.context', False)\
-.option('hbase.config.resources', '/hbase-site.xml')\
 .foreach(lambda row: print(row)).start()
 query.awaitTermination()
