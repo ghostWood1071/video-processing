@@ -15,7 +15,7 @@ session = SparkSession.builder\
           .appName("video-processing.com")\
           .getOrCreate()
 
-context = session.sparkContext
+context = session.sparkContext 
 context.setLogLevel("WARN")
 
 context.addPyFile("models.zip")
