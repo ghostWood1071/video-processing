@@ -1,4 +1,4 @@
-import os
+import os,sys
 # import json
 # f = open('file.import.json')
 # config = json.load(f)
@@ -6,6 +6,7 @@ import os
 # job_name = config['job']
 # py_file_names = ','.join(config['py_files'])
 # file_names = ','.join(config['files'])
+sys.path.append('~/video-processing')
 os.system(
 "spark-submit " +
 "--packages " + 
