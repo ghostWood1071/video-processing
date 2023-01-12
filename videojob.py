@@ -6,7 +6,6 @@ import time
 from datetime import datetime
 from uuid import uuid4
 import torch
-from custom_sink import WriteHbaseRow, process_batch
 from happybase import *
 from typing import *
 
