@@ -1,5 +1,18 @@
 from happybase import *
 from typing import *
+from pyspark.sql import DataFrame
+
+host = 'master,slave01,slave02'  
+table = 'test' 
+keyConv = "org.apache.spark.examples.pythonconverters.StringToImmutableBytesWritableConverter"  
+valueConv = "org.apache.spark.examples.pythonconverters.StringListToPutConverter"
+conf = {
+        "hbase.zookeeper.quorum": host,  
+        "hbase.mapred.outputtable": table,  
+        "mapreduce.outputformat.class": "org.apache.hadoop.hbase.mapreduce.TableOutputFormat",  
+        "mapreduce.job.output.key.class": "org.apache.hadoop.hbase.io.ImmutableBytesWritable",  
+        "mapreduce.job.output.value.class": "org.apache.hadoop.io.Writable"
+    } 
 
 class WriteHbaseRow:
     def __init__(self) -> None:
@@ -26,5 +39,11 @@ class WriteHbaseRow:
     def close(self, err):
         self.conn.close()
         print(err)
+
+def process_batch(df:DataFrame, id: int):
+    df.rdd.saveAsNewAPIHadoopDataset(conf=conf,keyConverter=keyConv,valueConverter=valueConv)
+    
+
+
         
 
