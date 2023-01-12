@@ -97,6 +97,3 @@ query = data_streaming_df.writeStream\
 # .option('hbase.use.hbase.context', False)\
 # .start()
 query.awaitTermination()
-
-a = context.parallelize([1,2,3])
-a.saveAsNewAPIHadoopDataset()
