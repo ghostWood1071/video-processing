@@ -6,6 +6,7 @@ import time
 from datetime import datetime
 from uuid import uuid4
 import torch
+from custom_sink import WriteHbaseRow
 
 
 
@@ -89,8 +90,10 @@ data_streaming_df = streaming_df.select(col('value').cast('string').name('value'
                                         col('frame'))
 
 query = data_streaming_df.writeStream\
-.format("org.apache.hadoop.hbase.spark")\
-.options(catalogs=catalog)\
-.option('hbase.use.hbase.context', False)\
+.foreach(WriteHbaseRow())\
 .start()
+# .format("org.apache.hadoop.hbase.spark")\
+# .options(catalogs=catalog)\
+# .option('hbase.use.hbase.context', False)\
+# .start()
 query.awaitTermination()
