@@ -8,7 +8,7 @@ from uuid import uuid4
 import torch
 from happybase import *
 from typing import *
-
+from detect import run
 
 
 # create session and context
@@ -33,7 +33,7 @@ global time
 time = datetime.now()
 global segment_id
 segment_id = uuid4()
-from detect import run
+
 
 # start streaming from kafka source
 streaming_df = session.\
