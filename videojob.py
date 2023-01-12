@@ -90,7 +90,7 @@ data_streaming_df = streaming_df.select(col('value').cast('string').name('value'
                                         col('frame'))
 
 query = data_streaming_df.writeStream\
-.foreachBatch(process_batch)\
+.foreach(WriteHbaseRow)\
 .start()
 # .format("org.apache.hadoop.hbase.spark")\
 # .options(catalogs=catalog)\
