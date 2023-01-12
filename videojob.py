@@ -8,7 +8,7 @@ from uuid import uuid4
 import torch
 from happybase import *
 from typing import *
-from detect import run
+from . import detect
 
 
 # create session and context
@@ -70,7 +70,7 @@ def process_batch_udf(data):
   if (this_time - time).total_seconds()/60 > 10:
      time = this_time
      segment_id = uuid4()
-  results = run(dist_weight.value, data, segment_id)
+  results = detect.run(dist_weight.value, data, segment_id)
   return results
 
 
