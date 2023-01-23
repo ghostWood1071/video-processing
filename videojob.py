@@ -24,7 +24,7 @@ context.addPyFile("yolo.zip")
 # define config info
 host = "192.168.56.7:9092,192.168.56.8:9093"
 stream_format = "kafka"
-topic = "777"
+topic = "a"
 
 model_weights = torch.load('yolov5s.pt', map_location='cpu')
 dist_weight = context.broadcast(model_weights)
