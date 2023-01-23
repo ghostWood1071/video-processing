@@ -20,7 +20,7 @@ session = SparkSession.builder\
 context = session.sparkContext 
 context.setLogLevel("WARN")
 context.addPyFile("yolo.zip")
-context.addPyFile("detect.py") 
+ 
 
 # define config info
 host = "192.168.56.7:9092,192.168.56.8:9093"
