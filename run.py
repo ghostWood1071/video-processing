@@ -11,9 +11,9 @@ os.system(
 "spark-submit " +
 "--packages " + 
         "org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0 " +
-"videojob.py " + 
-"--files /yolov5s.pt" 
-"--py-files /detect.py")
+"videojob.py ") #+ 
+# "--files /yolov5s.pt" 
+# "--py-files /detect.py")
         #   + job_name +
         #   " --py-files "+py_file_names+" "
         #   "--files "+file_names)

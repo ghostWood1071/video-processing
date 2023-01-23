@@ -1,0 +1,36 @@
+{
+  "job": "videojob.py",
+  "py_files": [
+    "yolov5/utils/__init__.py",
+    "yolov5/utils/torch_utils.py",
+    "yolov5/utils/triton.py",
+    "yolov5/utils/segment/__init__.py",
+    "yolov5/utils/segment/augmentations.py",
+    "yolov5/utils/segment/dataloaders.py",
+    "yolov5/utils/segment/general.py",
+    "yolov5/utils/segment/loss.py",
+    "yolov5/utils/segment/metrics.py",
+    "yolov5/utils/segment/plots.py",
+    "yolov5/utils/activations.py",
+    "yolov5/utils/augmentations.py",
+    "yolov5/utils/autoanchor.py",
+    "yolov5/utils/autobatch.py",
+    "yolov5/utils/callbacks.py",
+    "yolov5/utils/dataloaders.py",
+    "yolov5/utils/downloads.py",
+    "yolov5/utils/general.py",
+    "yolov5/utils/loss.py",
+    "yolov5/utils/metrics.py",
+    "yolov5/utils/plots.py",
+    "yolov5/models/__init__.py",
+    "yolov5/models/common.py",
+    "yolov5/models/experimental.py",
+    "yolov5/models/tf.py",
+    "yolov5/models/yolo.py",
+    "yolov5/detect.py"
+  ],
+  "files": [
+    "camera.config.json",
+    "yolov5/yolov5s.pt"
+  ]
+}

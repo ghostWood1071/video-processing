@@ -1,0 +1,19 @@
+{
+  "c370a4d1-f4b9-4906-a66d-a7292b86ee3a": {
+    "id": "c370a4d1-f4b9-4906-a66d-a7292b86ee3a",
+    "name": "camera home",
+    "location": "1st floor - living room"
+  },
+
+  "fbcbc17f-30bb-4152-a013-9a1a0d35d34e": {
+  "id": "fbcbc17f-30bb-4152-a013-9a1a0d35d34e",
+  "name": "camera yard",
+  "location": "yard"
+  },
+
+  "cc988cde-55ba-4568-a589-d9e880e1fc38": {
+  "id": "cc988cde-55ba-4568-a589-d9e880e1fc38",
+  "name": "camera backyard",
+  "location": "back yard"
+  }
+}
