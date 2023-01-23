@@ -8,7 +8,8 @@ from uuid import uuid4
 import torch
 from happybase import *
 from typing import *
-import detect.detect as detect
+from detect import detect 
+
 
 
 # create session and context
