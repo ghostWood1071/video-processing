@@ -8,7 +8,7 @@ from uuid import uuid4
 import torch
 from happybase import *
 from typing import *
-from detect import detect 
+import detect
 
 
 
