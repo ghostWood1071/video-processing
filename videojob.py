@@ -90,7 +90,7 @@ data_streaming_df = streaming_df.select(col('value').cast('string').name('value'
                                         col('frame'))
 
 class WriteHbaseRow:
-    def __init__(self) -> None:
+    def __init__(self):
         self.conn:Connection = Connection(host='10.0.2.195', port=9090, autoconnect=False)
         self.partition_id = None
         self.epoch_id = None
@@ -116,9 +116,9 @@ class WriteHbaseRow:
         print(err)
 
 
-query = data_streaming_df.writeStream\
-.foreach(WriteHbaseRow)\
-.start()
+query = data_streaming_df.writeStream.foreach(lambda x: print(x)).start()
+# .foreach(WriteHbaseRow)\
+# .start()
 # .format("org.apache.hadoop.hbase.spark")\
 # .options(catalogs=catalog)\
 # .option('hbase.use.hbase.context', False)\
