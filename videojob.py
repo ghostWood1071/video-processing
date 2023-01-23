@@ -21,7 +21,7 @@ context = session.sparkContext
 context.setLogLevel("WARN")
 context.addPyFile("models.zip")
 context.addPyFile("utils.zip")
-context.addPyFile("detect.zip") 
+context.addPyFile("detect.py") 
 
 # define config info
 host = "192.168.56.7:9092,192.168.56.8:9093"
