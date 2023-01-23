@@ -27,6 +27,7 @@ topic = "777"
 
 model_weights = torch.load('yolov5s.pt', map_location='cpu')
 dist_weight = context.broadcast(model_weights)
+print(dist_weight.value)
 global time 
 time = datetime.now()
 global segment_id
