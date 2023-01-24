@@ -60,31 +60,22 @@ def process_batch_udf(data):
      segment_id = uuid4()
   results = detect.run(dist_weight.value, data, segment_id)
   return results
+    
 
-class WriteHbaseRow:
-    def __init__(self):
-        self.partition_id = None
-        self.epoch_id = None
+def process(row):
+    conn = Connection(host='10.0.2.195', port=9090, autoconnect=False)
+    conn.open()
+    table = conn.table('video-processing')
+    data = {
+        'video:video_id': row['video_id'],
+        'video:segment_id': row['segment_id'],
+        'video:frame_id': row['frame_id'],
+        'object:name': row['name']
+    }
+    #table.put(f'{self.epoch_id}-{self.partition_id}-{row["key"]}', data)
+    table.put(f'{row["key"]}', data)
+    conn.close()
 
-    def open(self, partition_id, epoch_id):
-        self.partition_id = partition_id
-        self.epoch_id = epoch_id
-
-    def process(self, row):
-        conn = Connection(host='10.0.2.195', port=9090, autoconnect=False)
-        conn.open()
-        table = conn.table('video-processing')
-        data = {
-            'video:video_id': row['video_id'],
-            'video:segment_id': row['segment_id'],
-            'video:frame_id': row['frame_id'],
-            'object:name': row['name']
-        }
-        table.put(f'{self.epoch_id}-{self.partition_id}-{row["key"]}', data)
-        conn.close()
-
-    def close(self, err):
-        print(err)
 
 
 # query data
@@ -99,10 +90,7 @@ data_streaming_df = streaming_df.select(col('value').cast('string').name('value'
                                         col('name'), 
                                         col('frame'))
 query = data_streaming_df.writeStream\
-.foreach(WriteHbaseRow())\
+.foreach(process)\
 .start()
-# .format("org.apache.hadoop.hbase.spark")\
-# .options(catalogs=catalog)\
-# .option('hbase.use.hbase.context', False)\
-# .start()
+
 query.awaitTermination()
