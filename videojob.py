@@ -18,6 +18,7 @@ session = SparkSession.builder\
           .getOrCreate()
 
 context = session.sparkContext 
+context.setLogLevel("WARN")
 context.addPyFile("yolo.zip")
 
 # define config info
