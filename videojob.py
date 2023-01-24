@@ -66,9 +66,9 @@ class WriteHbaseRow:
         self.partition_id = None
         self.epoch_id = None
 
-    def open(self, partition_id, epoch_id):
-        self.partition_id = partition_id
-        self.epoch_id = epoch_id
+    def open(self):
+        # self.partition_id = partition_id
+        # self.epoch_id = epoch_id
         self.conn.open()
 
     def process(self, row):
@@ -79,7 +79,8 @@ class WriteHbaseRow:
             b'video:frame_id': row['frame_id'],
             b'object:name': row['name']
         }
-        table.put(f'{self.epoch_id}-{self.partition_id}-{row["key"]}', data)
+        #table.put(f'{self.epoch_id}-{self.partition_id}-{row["key"]}', data)
+        table.put(f'{row["key"]}', data)
         self.conn.close()
 
     def close(self, err):
@@ -98,7 +99,7 @@ data_streaming_df = streaming_df.select(col('value').cast('string').name('value'
                                         col('frame_id'), 
                                         col('name'), 
                                         col('frame'))
-
+data_streaming_df.writeStream.foreach()
 query = data_streaming_df.writeStream\
 .foreach(WriteHbaseRow)\
 .start()
