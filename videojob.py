@@ -99,7 +99,6 @@ data_streaming_df = streaming_df.select(col('value').cast('string').name('value'
                                         col('frame_id'), 
                                         col('name'), 
                                         col('frame'))
-data_streaming_df.writeStream.foreach()
 query = data_streaming_df.writeStream\
 .foreach(WriteHbaseRow)\
 .start()
