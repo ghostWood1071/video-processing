@@ -62,7 +62,6 @@ def process_batch_udf(data):
 
 class WriteHbaseRow:
     def __init__(self):
-        
         self.partition_id = None
         self.epoch_id = None
 
@@ -71,9 +70,9 @@ class WriteHbaseRow:
         self.epoch_id = epoch_id
 
     def process(self, row):
-        self.conn = Connection(host='10.0.2.195', port=9090, autoconnect=False)
-        self.conn.open()
-        table = self.conn.table('video-processing')
+        conn = Connection(host='10.0.2.195', port=9090, autoconnect=False)
+        conn.open()
+        table = conn.table('video-processing')
         print(row)
         # data = {
         #     'video:video_id': row['video_id'],
@@ -82,10 +81,9 @@ class WriteHbaseRow:
         #     'object:name': row['name']
         # }
         # table.put(f'{self.epoch_id}-{self.partition_id}-{row["key"]}', data)
-        self.conn.close()
+        conn.close()
 
     def close(self, err):
-        self.conn.close()
         print(err)
 
 
