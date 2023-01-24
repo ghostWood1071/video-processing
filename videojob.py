@@ -62,7 +62,7 @@ def process_batch_udf(data):
 
 class WriteHbaseRow:
     def __init__(self):
-        self.conn:Connection = Connection(host='10.0.2.195', port=9090, autoconnect=False)
+        self.conn = Connection(host='10.0.2.195', port=9090, autoconnect=False)
         self.partition_id = None
         self.epoch_id = None
 
@@ -72,8 +72,8 @@ class WriteHbaseRow:
         self.conn.open()
 
     def process(self, row):
-        table:Table = self.conn.table('video-processing')
-        data:Dict[bytes, bytes] = {
+        table = self.conn.table('video-processing')
+        data = {
             b'video:video_id': row['video_id'],
             b'video:segment_id': row['segment_id'],
             b'video:frame_id': row['frame_id'],
