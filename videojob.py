@@ -73,13 +73,14 @@ class WriteHbaseRow:
 
     def process(self, row):
         table = self.conn.table('video-processing')
-        data = {
-            'video:video_id': row['video_id'],
-            'video:segment_id': row['segment_id'],
-            'video:frame_id': row['frame_id'],
-            'object:name': row['name']
-        }
-        table.put(f'{self.epoch_id}-{self.partition_id}-{row["key"]}', data)
+        print(row)
+        # data = {
+        #     'video:video_id': row['video_id'],
+        #     'video:segment_id': row['segment_id'],
+        #     'video:frame_id': row['frame_id'],
+        #     'object:name': row['name']
+        # }
+        # table.put(f'{self.epoch_id}-{self.partition_id}-{row["key"]}', data)
         self.conn.close()
 
     def close(self, err):
