@@ -74,14 +74,13 @@ class WriteHbaseRow:
         conn = Connection(host='10.0.2.195', port=9090, autoconnect=False)
         conn.open()
         table = conn.table('video-processing')
-        print(row)
-        # data = {
-        #     'video:video_id': row['video_id'],
-        #     'video:segment_id': row['segment_id'],
-        #     'video:frame_id': row['frame_id'],
-        #     'object:name': row['name']
-        # }
-        # table.put(f'{self.epoch_id}-{self.partition_id}-{row["key"]}', data)
+        data = {
+            'video:video_id': row['video_id'],
+            'video:segment_id': row['segment_id'],
+            'video:frame_id': row['frame_id'],
+            'object:name': row['name']
+        }
+        table.put(f'{self.epoch_id}-{self.partition_id}-{row["key"]}', data)
         conn.close()
 
     def close(self, err):
