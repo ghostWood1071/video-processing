@@ -18,7 +18,6 @@ session = SparkSession.builder\
           .getOrCreate()
 
 context = session.sparkContext 
-context.setLogLevel("WARN")
 context.addPyFile("yolo.zip")
 
 # define config info
@@ -61,23 +60,48 @@ def process_batch_udf(data):
   results = detect.run(dist_weight.value, data, segment_id)
   return results
 
+class WriteHbaseRow:
+    def __init__(self):
+        self.conn:Connection = Connection(host='10.0.2.195', port=9090, autoconnect=False)
+        self.partition_id = None
+        self.epoch_id = None
+
+    def open(self, partition_id, epoch_id):
+        self.partition_id = partition_id
+        self.epoch_id = epoch_id
+        self.conn.open()
+
+    def process(self, row):
+        table:Table = self.conn.table('video-processing')
+        data:Dict[bytes, bytes] = {
+            b'video:video_id': row['video_id'],
+            b'video:segment_id': row['segment_id'],
+            b'video:frame_id': row['frame_id'],
+            b'object:name': row['name']
+        }
+        table.put(f'{self.epoch_id}-{self.partition_id}-{row["key"]}', data)
+        self.conn.close()
+
+    def close(self, err):
+        self.conn.close()
+        print(err)
+
 
 # query data
 cols = 'id string, frame string'
 data_streaming_df = streaming_df.select(col('value').cast('string').name('value'))\
                                 .select(from_json(col('value'), cols).name('value'))\
                                 .mapInPandas(process_batch_udf, schema)\
-                                .select("*")
-                                # .select(col('key'), 
-                                #         col('video_id'), 
-                                #         col('segment_id'), 
-                                #         col('frame_id'), 
-                                #         col('name'), 
-                                #         col('frame'))
+                                .select(col('key'), 
+                                        col('video_id'), 
+                                        col('segment_id'), 
+                                        col('frame_id'), 
+                                        col('name'), 
+                                        col('frame'))
 
-query = data_streaming_df.writeStream.format("console").foreach(lambda x: print(x)).start()
-# .foreach(WriteHbaseRow)\
-# .start()
+query = data_streaming_df.writeStream\
+.foreach(WriteHbaseRow)\
+.start()
 # .format("org.apache.hadoop.hbase.spark")\
 # .options(catalogs=catalog)\
 # .option('hbase.use.hbase.context', False)\
