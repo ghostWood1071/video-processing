@@ -75,7 +75,7 @@ data_streaming_df = streaming_df.select(col('value').cast('string').name('value'
                                 #         col('name'), 
                                 #         col('frame'))
 
-query = data_streaming_df.writeStream.foreach(lambda x: print(x)).start()
+query = data_streaming_df.writeStream.format("console").foreach(lambda x: print(x)).start()
 # .foreach(WriteHbaseRow)\
 # .start()
 # .format("org.apache.hadoop.hbase.spark")\
