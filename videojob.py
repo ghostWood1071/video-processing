@@ -74,16 +74,6 @@ def process(row):
     table.put(f'{row["key"]}', data)
     conn.close()
 
-video_df = context.parallelize([
-  {
-    'video_id': 'c370a4d1-f4b9-4906-a66d-a7292b86ee3a',
-    'num_obj': 0
-  },
-  {
-    'video_id': 'c370a4d1-f4b9-4906-a66d-a7292b86ee3b',
-    'num_obj': 0
-  }]).toDF("video_id", "num_obj")
-
 # query data
 cols = 'video_id string, frame string'
 data_streaming_df = streaming_df.select(col('value').cast('string').name('value'))\
