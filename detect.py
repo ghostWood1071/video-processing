@@ -110,6 +110,7 @@ def decode_frame(string: str):
     return frame
 
 def loadData(dataframe):
+    print(dataframe.values)
     row = dataframe.values.tolist()[0][0]
     torch.backends.cudnn.benchmark = True  
     img_size=np.array([640,640])
@@ -121,7 +122,7 @@ def loadData(dataframe):
     im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW
     im = np.ascontiguousarray(im) 
     # print(f'type video_id: {type(row[0])}, im: {type(im)}, im0: {type(im0)}')
-    return row['id'], im, im0
+    return row['video_id'], im, im0
 
 def draw_box(img, box, label, color=(128, 128, 128),txt_color=(255, 255, 255), line_width=10):
     p1, p2 = (int(box[0]), int(box[1])), (int(box[2]), int(box[3]))
@@ -170,8 +171,6 @@ def run(
     imgsz = check_img_size(imgsz, s=stride) 
     # dataset = loadData()
     seen, dt = 0, (Profile(), Profile(), Profile())
-    result = list()
-
 
     for row in dataset:
         
@@ -211,13 +210,3 @@ def run(
                     }
                     yield pd.DataFrame([obj])
     
-
-
-# imgs = []
-# cap = cv2.VideoCapture(0)
-# for i in range(1,10):
-#     _,frame = cap.read()
-#     imgs.append(('lol', encode_frame(frame)))
-
-# ckpt = torch.load('yolov5s.pt', map_location='cpu')
-# run(ckpt, imgs, 'lol')

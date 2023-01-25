@@ -1,8 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StringType, StructField
 from pyspark.sql.functions import *
-import json
-import time
 from datetime import datetime
 from uuid import uuid4
 import torch
@@ -28,8 +26,8 @@ topic = "test1"
 
 model_weights = torch.load('yolov5s.pt', map_location='cpu')
 dist_weight = context.broadcast(model_weights)
-global time 
-time = datetime.now()
+global start_time
+start_time = datetime.now()
 global segment_id
 segment_id = uuid4()
 
@@ -52,11 +50,11 @@ schema = StructType([
 ])
 
 def process_batch_udf(data):
-  global time
+  global start_time
   global segment_id
   this_time = datetime.now()
-  if (this_time - time).total_seconds()/60 > 10:
-     time = this_time
+  if (this_time - start_time).total_seconds()/60 > 10:
+     start_time = this_time
      segment_id = uuid4()
   results = detect.run(dist_weight.value, data, segment_id)
   return results
@@ -70,16 +68,24 @@ def process(row):
         'video:video_id': row['video_id'],
         'video:segment_id': row['segment_id'],
         'video:frame_id': row['frame_id'],
-        'object:name': row['name']
+        'object:name': row['name'],
+        'video:frame': row['frame']
     }
-    #table.put(f'{self.epoch_id}-{self.partition_id}-{row["key"]}', data)
     table.put(f'{row["key"]}', data)
     conn.close()
 
-
+video_df = context.parallelize([
+  {
+    'video_id': 'c370a4d1-f4b9-4906-a66d-a7292b86ee3a',
+    'num_obj': 0
+  },
+  {
+    'video_id': 'c370a4d1-f4b9-4906-a66d-a7292b86ee3b',
+    'num_obj': 0
+  }]).toDF("video_id", "num_obj")
 
 # query data
-cols = 'id string, frame string'
+cols = 'video_id string, frame string'
 data_streaming_df = streaming_df.select(col('value').cast('string').name('value'))\
                                 .select(from_json(col('value'), cols).name('value'))\
                                 .mapInPandas(process_batch_udf, schema)\
