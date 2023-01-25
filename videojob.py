@@ -76,8 +76,8 @@ def process(row):
 
 # query data
 cols = 'video_id string, frame string'
-data_streaming_df = streaming_df.select(col('value').cast('string').name('value'))\
-                                .select(from_json(col('value'), cols).name('value'))\
+data_streaming_df = streaming_df.select(col('value').cast('string').name('value'), col('timestamp'))\
+                                .select(from_json(col('value'), cols).name('value'), col('timestamp'))\
                                 .mapInPandas(process_batch_udf, schema)\
                                 .select(col('key'), 
                                         col('video_id'), 
