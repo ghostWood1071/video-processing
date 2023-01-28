@@ -4,17 +4,21 @@ import sys
 import time
 import cv2
 from kafka import KafkaProducer
+from datetime import datetime
 
 hosts = ['192.168.56.7:9092', '192.168.56.8:9093']
+global camera_id
 camera_id = "c370a4d1-f4b9-4906-a66d-a7292b86ee3a"
 
 
 def encode(frame):
     _, buff = cv2.imencode('.jpg', frame)
     b64 = base64.b64encode(buff).decode()
+    global camera_id
     data = {
-        'id': camera_id,
-        'frame': b64
+        'video_id': camera_id,
+        'frame': b64,
+        'timestamp': datetime.now().timestamp()
     }
     return json.dumps(data).encode('utf-8')
 
@@ -26,7 +30,6 @@ def publish_camera(topic, video):
     try:
         while True:
             success, frame = camera.read()
-            print(encode(frame))
             producer.send(topic, frame)
             print("sending...")
             time.sleep(3)

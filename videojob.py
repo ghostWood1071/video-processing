@@ -26,10 +26,8 @@ topic = "thu"
 
 model_weights = torch.load('yolov5s.pt', map_location='cpu')
 dist_weight = context.broadcast(model_weights)
-global start_time
-start_time = datetime.now()
-global segment_id
-segment_id = uuid4()
+start_time = context.broadcast(datetime.now())
+segment_id = context.broadcast(str(uuid4()))
 
 
 # start streaming from kafka source
@@ -49,14 +47,20 @@ schema = StructType([
   StructField('frame', StringType())
 ])
 
+def gen_segment_id(send_time):
+  global start_time_in_excutor
+  if start_time_in_excutor is None:
+    start_time_in_excutor = start_time.value
+  elif start_time_in_excutor != start_time.value:
+    #if (send_time - start_time_in_excutor).total_seconds()/60 > 10:
+    if (send_time - start_time_in_excutor).total_seconds() > 5:
+      start_time_in_excutor = datetime.now()
+      segment_id.unpersist(True)
+      segment_id = context.broadcast(str(uuid4()))
+  return segment_id.value
+
 def process_batch_udf(data):
-  global start_time
-  global segment_id
-  this_time = datetime.now()
-  if (this_time - start_time).total_seconds()/60 > 10:
-     start_time = this_time
-     segment_id = uuid4()
-  results = detect.run(dist_weight.value, data, segment_id)
+  results = detect.run(dist_weight.value, data, gen_segment_id)
   return results
     
 
@@ -75,7 +79,7 @@ def process(row):
     conn.close()
 
 # query data
-cols = 'video_id string, frame string'
+cols = 'video_id string, frame string, timestamp float'
 data_streaming_df = streaming_df.select(col('value').cast('string').name('value'), col('timestamp'))\
                                 .select(from_json(col('value'), cols).name('value'), col('timestamp'))\
                                 .mapInPandas(process_batch_udf, schema)\

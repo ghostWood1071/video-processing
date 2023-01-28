@@ -1,26 +1,17 @@
 import torch
-# from models.common import DetectMultiBackend
-from  utils.general import (LOGGER, Profile, check_img_size, check_requirements, cv2,non_max_suppression, scale_boxes)
+from  utils.general import ( Profile, check_img_size,cv2,non_max_suppression, scale_boxes)
 from  utils.plots import colors
 from  utils.torch_utils import select_device, smart_inference_mode
 import numpy as np
 from  utils.augmentations import letterbox
-from pathlib import Path
 import cv2
 import torch.nn as nn
 import base64
 from uuid import uuid4
-from pyspark.sql.types import Row
 from  utils.dataloaders import letterbox
-from  utils.general import (LOGGER, ROOT, Profile, check_requirements, non_max_suppression, scale_boxes)
 from  utils.torch_utils import  smart_inference_mode
-    # Ultralytics color palette https://ultralytics.com/
 import pandas as pd
-
-
-
-    # YOLOv5 Profile class. Usage: @Profile() decorator or 'with Profile():' context manager
-print('ok-----------------------------------------------')
+from datetime import datetime
 
 class Ensemble(nn.ModuleList):
     # Ensemble of models
@@ -46,7 +37,6 @@ class DetectMultiBackend(nn.Module):
         self.model = model  # explicitly assign for to(), cpu(), cuda(), half()
         self.__dict__.update(locals())  # assign all variables to self
     
-
     def load_weights(self, ckpt, device=None, inplace=True, fuse=True):
     # Loads an ensemble of models weights=[a,b,c] or a single model weights=[a] or weights=a
         from  models.yolo import Detect, Model
@@ -109,8 +99,7 @@ def decode_frame(string: str):
     frame = cv2.imdecode(buff, flags=1)
     return frame
 
-def loadData(dataframe):
-    print(dataframe.values)
+def loadData(dataframe, gen_segment_id):
     row = dataframe.values.tolist()[0][0]
     torch.backends.cudnn.benchmark = True  
     img_size=np.array([640,640])
@@ -121,8 +110,7 @@ def loadData(dataframe):
     im = np.stack([letterbox(x, img_size, stride=stride, auto=auto)[0] for x in [im0]])  # resize
     im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW
     im = np.ascontiguousarray(im) 
-    # print(f'type video_id: {type(row[0])}, im: {type(im)}, im0: {type(im0)}')
-    return row['video_id'], im, im0
+    return row['video_id'], im, im0, gen_segment_id(datetime.fromtimestamp(row['timestamp']))
 
 def draw_box(img, box, label, color=(128, 128, 128),txt_color=(255, 255, 255), line_width=10):
     p1, p2 = (int(box[0]), int(box[1])), (int(box[2]), int(box[3]))
@@ -143,13 +131,11 @@ def draw_box(img, box, label, color=(128, 128, 128),txt_color=(255, 255, 255), l
                     lineType=cv2.LINE_AA)
     return img
 
-
-
 @smart_inference_mode()
 def run(
         weights,  # model path or triton URL
         dataset,
-        segment_id,
+        gen_segment_id,
         data=None,  # dataset.yaml path
         imgsz=(640, 640),  # inference size (height, width)
         conf_thres=0.25,  # confidence threshold
@@ -172,9 +158,9 @@ def run(
     # dataset = loadData()
     seen, dt = 0, (Profile(), Profile(), Profile())
 
-    for row in dataset:
+    for df in dataset:
         
-        video_id, im, im0s = loadData(row)# infom[0], infom[1], infom[2]
+        video_id, im, im0s, segment_id = loadData(df, gen_segment_id)# infom[0], infom[1], infom[2]
         frame_id = uuid4()
         with dt[0]:
             im = torch.from_numpy(im).to(model.device)
@@ -199,7 +185,7 @@ def run(
                     c = int(cls)  # integer class
                     label = f'{names[c]} {conf:.2f}'
                     im0 = draw_box(im0, xyxy, label, colors(c, True), line_width=line_thickness)
-                    print(names[c])
+                    print({"name": names[c], "segment": segment_id})
                     obj = {
                         'key': str(uuid4()),
                         'video_id': video_id,
