@@ -40,7 +40,7 @@ def encode(frame):
 def publish_camera(topic, video):
     producer = KafkaProducer(bootstrap_servers=hosts, value_serializer=lambda x: encode(x))
    
-    camera = cv2.VideoCapture(0)
+    camera = cv2.VideoCapture("1.mp4")
     try:
         while True:
             success, frame = camera.read()
