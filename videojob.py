@@ -12,6 +12,7 @@ import detect
 
 # create session and context
 session = SparkSession.builder\
+          .master("yarn-cluster")\
           .appName('video-processing.com')\
           .getOrCreate()
 
