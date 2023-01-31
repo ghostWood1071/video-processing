@@ -111,7 +111,7 @@ def loadData(dataframe):
     im = np.stack([letterbox(x, img_size, stride=stride, auto=auto)[0] for x in [im0]])  # resize
     im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW
     im = np.ascontiguousarray(im) 
-    return row['video_id'], im, im0, row['segment_id'], row['timestamp']
+    return row['video_id'], im, im0, row['segment_id'], row['send_time']
 
 def draw_box(img, box, label, color=(128, 128, 128),txt_color=(255, 255, 255), line_width=10):
     p1, p2 = (int(box[0]), int(box[1])), (int(box[2]), int(box[3]))
