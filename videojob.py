@@ -53,7 +53,7 @@ def process_batch_udf(data):
     
 
 def process(row):
-    conn = Connection(host='10.0.2.195', port=9090, autoconnect=False)
+    conn = Connection(host='192.168.100.126', port=9090, autoconnect=False)
     conn.open()
     table = conn.table('video-processing')
     data = {

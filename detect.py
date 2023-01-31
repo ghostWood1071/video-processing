@@ -133,7 +133,7 @@ def draw_box(img, box, label, color=(128, 128, 128),txt_color=(255, 255, 255), l
     return img
 
 def update_object_quantity(cam_id, quantity):
-  conn = Connection(host='10.0.2.195', port=9090, autoconnect=False)
+  conn = Connection(host='192.168.100.126', port=9090, autoconnect=False)
   conn.open()
   table = conn.table('cameras')
   row = table.row(bytes(cam_id))
