@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.types import StructType, StringType, StructField
+from pyspark.sql.types import StructType, StringType, StructField, FloatType
 from pyspark.sql.functions import *
 from datetime import datetime
 from uuid import uuid4
@@ -43,7 +43,8 @@ schema = StructType([
   StructField('segment_id', StringType()),
   StructField('frame_id', StringType()),
   StructField('name', StringType()),
-  StructField('frame', StringType())
+  StructField('frame', StringType()),
+  StructField('send_time', FloatType())
 ])
 
 
