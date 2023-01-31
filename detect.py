@@ -169,7 +169,7 @@ def run(
 
     for df in dataset:
         
-        video_id, im, im0s, segment_id, timestamp = loadData(df)# infom[0], infom[1], infom[2]
+        video_id, im, im0s, segment_id, send_time = loadData(df)# infom[0], infom[1], infom[2]
         frame_id = uuid4()
         with dt[0]:
             im = torch.from_numpy(im).to(model.device)
@@ -203,7 +203,7 @@ def run(
                         'frame_id': str(frame_id),
                         'name': names[c],
                         'frame': encode_frame(im0),
-                        'timestamp': timestamp
+                        'send_time': send_time
                     }
                     quan_objs += 1
                     yield pd.DataFrame([obj])
