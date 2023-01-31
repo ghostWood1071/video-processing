@@ -20,7 +20,7 @@ context.setLogLevel('WARN')
 context.addPyFile('yolo.zip')
 
 # define config info
-host = '192.168.56.7:9092,192.168.56.8:9093'
+host = '192.168.100.124:9092,192.168.100.125:9093'
 stream_format = 'kafka'
 topic = 'thu'
 

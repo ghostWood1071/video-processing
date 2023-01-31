@@ -7,7 +7,7 @@ from kafka import KafkaProducer
 from datetime import datetime
 from uuid import uuid4
 
-hosts = ['192.168.56.7:9092', '192.168.56.8:9093']
+hosts = ['192.168.100.124:9092', '192.168.100.125:9093']
 global camera_id
 global segment_id
 global start_time
