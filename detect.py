@@ -12,6 +12,7 @@ from  utils.dataloaders import letterbox
 from  utils.torch_utils import  smart_inference_mode
 import pandas as pd
 from datetime import datetime
+from happybase import *
 
 class Ensemble(nn.ModuleList):
     # Ensemble of models
@@ -99,7 +100,7 @@ def decode_frame(string: str):
     frame = cv2.imdecode(buff, flags=1)
     return frame
 
-def loadData(dataframe, gen_segment_id):
+def loadData(dataframe):
     row = dataframe.values.tolist()[0][0]
     torch.backends.cudnn.benchmark = True  
     img_size=np.array([640,640])
@@ -110,7 +111,7 @@ def loadData(dataframe, gen_segment_id):
     im = np.stack([letterbox(x, img_size, stride=stride, auto=auto)[0] for x in [im0]])  # resize
     im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW
     im = np.ascontiguousarray(im) 
-    return row['video_id'], im, im0, gen_segment_id(datetime.fromtimestamp(row['timestamp']))
+    return row['video_id'], im, im0, row['segment_id'], row['timestamp']
 
 def draw_box(img, box, label, color=(128, 128, 128),txt_color=(255, 255, 255), line_width=10):
     p1, p2 = (int(box[0]), int(box[1])), (int(box[2]), int(box[3]))
@@ -131,11 +132,19 @@ def draw_box(img, box, label, color=(128, 128, 128),txt_color=(255, 255, 255), l
                     lineType=cv2.LINE_AA)
     return img
 
+def update_object_quantity(cam_id, quantity):
+  conn = Connection(host='10.0.2.195', port=9090, autoconnect=False)
+  conn.open()
+  table = conn.table('cameras')
+  row = table.row(bytes(cam_id))
+  if row[b'object:quantity'] != quantity:
+    table.put(cam_id, {'object:quantity': quantity})
+  conn.close()
+
 @smart_inference_mode()
-def run(
+def run( 
         weights,  # model path or triton URL
         dataset,
-        gen_segment_id,
         data=None,  # dataset.yaml path
         imgsz=(640, 640),  # inference size (height, width)
         conf_thres=0.25,  # confidence threshold
@@ -160,7 +169,7 @@ def run(
 
     for df in dataset:
         
-        video_id, im, im0s, segment_id = loadData(df, gen_segment_id)# infom[0], infom[1], infom[2]
+        video_id, im, im0s, segment_id, timestamp = loadData(df)# infom[0], infom[1], infom[2]
         frame_id = uuid4()
         with dt[0]:
             im = torch.from_numpy(im).to(model.device)
@@ -178,6 +187,7 @@ def run(
         
         for det in pred:  # per image
             seen += 1
+            quan_objs = 0
             im0 = im0s.copy()
             if len(det):
                 det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
@@ -189,10 +199,13 @@ def run(
                     obj = {
                         'key': str(uuid4()),
                         'video_id': video_id,
-                        'segment_id': str(segment_id),
+                        'segment_id': segment_id,
                         'frame_id': str(frame_id),
                         'name': names[c],
-                        'frame': encode_frame(im0)
+                        'frame': encode_frame(im0),
+                        'timestamp': timestamp
                     }
+                    quan_objs += 1
                     yield pd.DataFrame([obj])
+                update_object_quantity(video_id, quan_objs)
     
