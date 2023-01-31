@@ -17,6 +17,7 @@ start_time = datetime.now()
 
 def gen_segment_id(send_time):
     global start_time
+    global segment_id
     #if (send_time - start_time_in_excutor).total_seconds()/60 > 10:
     if (send_time - start_time).total_seconds() > 5:
         start_time = datetime.now()
