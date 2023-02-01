@@ -204,7 +204,7 @@ def run(
                         'frame_id': str(frame_id),
                         'name': names[c],
                         'frame': encode_frame(im0),
-                        'send_time': send_time
+                        'send_time': str(send_time)
                     }
                     quan_objs += 1
                     yield pd.DataFrame([obj])
