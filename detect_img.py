@@ -102,16 +102,34 @@ class DetectMultiBackend(nn.Module):
     def from_numpy(self, x):
         return torch.from_numpy(x).to(self.device) if isinstance(x, np.ndarray) else x
 
-def loadData(): 
+# def loadData(): 
+#     torch.backends.cudnn.benchmark = True  
+#     img_size=np.array([640,640])
+#     stride=32 
+#     auto=True
+#     # cap = cv2.VideoCapture(0)
+#     import os
+#     img_list = os.listdir('./input_imgs')
+#     for img_name in img_list:
+#         frame= cv2.imread(f'./input_imgs/{img_name}')
+#         im0 = frame.copy()
+#         im = np.stack([letterbox(x, img_size, stride=stride, auto=auto)[0] for x in [im0]])  # resize
+#         im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW
+#         im = np.ascontiguousarray(im) 
+#         yield im, im0
+
+def loadData(cam): 
     torch.backends.cudnn.benchmark = True  
     img_size=np.array([640,640])
     stride=32 
     auto=True
     # cap = cv2.VideoCapture(0)
-    import os
-    img_list = os.listdir('./input_imgs')
-    for img_name in img_list:
-        frame= cv2.imread(f'./input_imgs/{img_name}')
+    # import os
+    # img_list = os.listdir('./input_imgs')
+    # for img_name in img_list:
+        # frame= cv2.imread(f'./input_imgs/{img_name}')
+    while True:
+        success, frame = cam.read()
         im0 = frame.copy()
         im = np.stack([letterbox(x, img_size, stride=stride, auto=auto)[0] for x in [im0]])  # resize
         im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW
@@ -183,6 +201,7 @@ def run(
         for det in pred:  # per image
             seen += 1
             im0 = im0s.copy()
+            print('length of det: ',len(det))
             if len(det):
                 objs = []
                 det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
@@ -201,7 +220,8 @@ def run(
 def main():
     check_requirements(exclude=('tensorboard', 'thop'))
     ckpt = torch.load('yolov5s.pt', map_location='cpu')
-    dataset = loadData()
+    cam = cv2.VideoCapture(0)
+    dataset = loadData(cam)
     result = run(ckpt, dataset)
     print(result)
 

@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.types import StructType, StringType, StructField, FloatType
+from pyspark.sql.types import StructType, StringType, StructField, FloatType, BooleanType
 from pyspark.sql.functions import *
 from datetime import datetime
 from uuid import uuid4
@@ -44,7 +44,8 @@ schema = StructType([
   StructField('frame_id', StringType()),
   StructField('name', StringType()),
   StructField('frame', StringType()),
-  StructField('send_time', FloatType())
+  StructField('send_time', FloatType()),
+  StructField('changed', BooleanType())
 ])
 
 
@@ -73,6 +74,7 @@ cols = 'video_id string, segment_id string, frame string, send_time float'
 data_streaming_df = streaming_df.select(col('value').cast('string').name('value'))\
                                 .select(from_json(col('value'), cols).name('value'))\
                                 .mapInPandas(process_batch_udf, schema)\
+                                .where(col('changed') == 'true')\
                                 .select(col('key'), 
                                         col('video_id'), 
                                         col('segment_id'), 

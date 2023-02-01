@@ -133,6 +133,7 @@ def draw_box(img, box, label, color=(128, 128, 128),txt_color=(255, 255, 255), l
     return img
 
 def update_object_quantity(cam_id, quantity):
+  is_updated = False
   conn = Connection(host='192.168.100.126', port=9090, autoconnect=False)
   conn.open()
   table = conn.table('cameras') 
@@ -140,7 +141,9 @@ def update_object_quantity(cam_id, quantity):
   update_value =  bytes(str(quantity), 'utf-8')
   if row[b'object:quantity'] != quantity:
     table.put(cam_id, {'object:quantity': update_value})
+    is_updated = True
   conn.close()
+  return is_updated
 
 @smart_inference_mode()
 def run( 
@@ -187,8 +190,8 @@ def run(
 
         
         for det in pred:  # per image
+            is_updated = update_object_quantity(video_id, len(det))
             seen += 1
-            quan_objs = 0
             im0 = im0s.copy()
             if len(det):
                 det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
@@ -204,9 +207,10 @@ def run(
                         'frame_id': str(frame_id),
                         'name': names[c],
                         'frame': encode_frame(im0),
-                        'send_time': send_time
+                        'send_time': send_time,
+                        'changed': is_updated
                     }
-                    quan_objs += 1
+                    
                     yield pd.DataFrame([obj])
-                update_object_quantity(video_id, quan_objs)
+                
     
