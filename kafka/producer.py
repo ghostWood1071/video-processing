@@ -33,7 +33,7 @@ def encode(frame):
         'video_id': camera_id,
         'segment_id': gen_segment_id(send_time),
         'frame': b64,
-        'send_time': send_time.timestamp()
+        'send_time': str(send_time.timestamp())
     }
     return json.dumps(data).encode('utf-8')
 
