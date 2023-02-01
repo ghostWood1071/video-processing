@@ -60,7 +60,7 @@ def process(row):
     data = {
         'video:video_id': row['video_id'],
         'video:segment_id': row['segment_id'],
-        'video:send_time': row['send_time'],
+        'video:send_time': str(row['send_time']),
         'video:frame_id': row['frame_id'],
         'object:name': row['name'],
         'video:frame': row['frame'],
@@ -69,7 +69,7 @@ def process(row):
     conn.close()
 
 # query data
-cols = 'video_id string, segment_id string, frame string, send_time string'
+cols = 'video_id string, segment_id string, frame string, send_time float'
 data_streaming_df = streaming_df.select(col('value').cast('string').name('value'))\
                                 .select(from_json(col('value'), cols).name('value'))\
                                 .mapInPandas(process_batch_udf, schema)\
