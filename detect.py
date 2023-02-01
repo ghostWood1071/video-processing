@@ -135,10 +135,11 @@ def draw_box(img, box, label, color=(128, 128, 128),txt_color=(255, 255, 255), l
 def update_object_quantity(cam_id, quantity):
   conn = Connection(host='192.168.100.126', port=9090, autoconnect=False)
   conn.open()
-  table = conn.table('cameras')
-  row = table.row(bytes(cam_id))
+  table = conn.table('cameras') 
+  row = table.row(bytes(cam_id, 'utf-8'))
+  update_value =  bytes(str(quantity), 'utf-8')
   if row[b'object:quantity'] != quantity:
-    table.put(cam_id, {'object:quantity': quantity})
+    table.put(cam_id, {'object:quantity': update_value})
   conn.close()
 
 @smart_inference_mode()
