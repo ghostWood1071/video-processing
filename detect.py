@@ -212,5 +212,17 @@ def run(
                     }
                     
                     yield pd.DataFrame([obj])
+            else:
+                obj = {
+                        'key': str(uuid4()),
+                        'video_id': video_id,
+                        'segment_id': segment_id,
+                        'frame_id': str(frame_id),
+                        'name': 'nothing',
+                        'frame': encode_frame(im0),
+                        'send_time': send_time,
+                        'changed': is_updated
+                    }
+                yield pd.DataFrame([obj])
                 
     
