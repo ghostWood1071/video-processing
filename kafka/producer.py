@@ -46,7 +46,7 @@ def encode(frame):
 def create_video_writer(video_name, f_w, f_h):
     return {
         'writer':  cv2.VideoWriter(video_name+".avi",cv2.VideoWriter_fourcc('M','J','P','G'), 10, (f_w,f_h)),
-        'video_name': video_name
+        'video_name': video_name+".avi"
     }
 
 def upload_video(file_name):
