@@ -60,7 +60,7 @@ def write_video(out ,video_name, frame, f_w, f_h):
    global checking_change
    if checking_change: 
     out.get('writer').release()
-    out.update({'writer': create_video_writer(video_name, f_w, f_h)}) 
+    out = create_video_writer(video_name, f_w, f_h)
     checking_change = False
    out.get('writer').write(frame)
 
