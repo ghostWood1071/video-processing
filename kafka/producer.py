@@ -44,10 +44,13 @@ def encode(frame):
     return json.dumps(data).encode('utf-8')
 
 def create_video_writer(video_name, f_w, f_h):
-    return cv2.VideoWriter(video_name+".avi",cv2.VideoWriter_fourcc('M','J','P','G'), 10, (f_w,f_h))
+    return {
+        'writer':  cv2.VideoWriter(video_name+".avi",cv2.VideoWriter_fourcc('M','J','P','G'), 10, (f_w,f_h)),
+        'video_name': video_name
+    }
 
 def upload_video(file_name):
-    url = f'http://master:9870/webhdfs/v1/video_cam/{camera_id}/{file_name}op=GETFILESTATUS'
+    url = f'http://master:9870/webhdfs/v1/video_cam/{camera_id}/{file_name}?op=CREATE'
     file_path = ""+file_name
     file = open(file_path, mode='rb')
     res = requests.put(url, files={'form_field_name': file})
@@ -56,10 +59,10 @@ def upload_video(file_name):
 def write_video(out ,video_name, frame, f_w, f_h):
    global checking_change
    if checking_change: 
-    out.release()
-    out = create_video_writer(video_name, f_w, f_h)
+    out.get('writer').release()
+    out.update({'writer': create_video_writer(video_name, f_w, f_h)}) 
     checking_change = False
-   out.write(frame)
+   out.get('writer').write(frame)
 
 def publish_camera(cam):
     while True:
