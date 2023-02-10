@@ -69,7 +69,7 @@ def publish_camera(cam):
         time.sleep(3)
         yield frame
 
-def run(topic):
+def run(topic, video_path):
     global segment_id
     producer = KafkaProducer(bootstrap_servers=hosts, value_serializer=lambda x: encode(x))
     camera = cv2.VideoCapture("1.mp4")
@@ -87,6 +87,6 @@ if __name__ == '__main__':
     if len(sys.argv) == 1:
         topic_name = "video"  # sys.argv[1]
         video_path = "c"  # sys.argv[2]
-        publish_camera(topic_name, video_path)
+        run(topic_name, video_path)
     else:
         print("dont have any topic or video")
