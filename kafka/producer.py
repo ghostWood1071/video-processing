@@ -125,7 +125,7 @@ def run(topic):
     global segment_id
     global start_time
     global checking_change 
-    global acess_frame
+    global access_frame
     camera_id = "c370a4d1-f4b9-4906-a66d-a7292b86ee3a"
     segment_id = str(uuid4())
     start_time = datetime.now()
