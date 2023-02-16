@@ -7,90 +7,150 @@ from kafka import KafkaProducer
 from datetime import datetime
 from uuid import uuid4
 import requests
+import threading
+from typing import *
+import os
 
+#data info
 global camera_id
 global segment_id
 global start_time
 global checking_change 
-hosts = ['192.168.100.124:9092', '192.168.100.125:9093']
 camera_id = "c370a4d1-f4b9-4906-a66d-a7292b86ee3a"
 segment_id = str(uuid4())
 start_time = datetime.now()
-checking_change = False
+
+#hosting
+hosts = ['192.168.100.124:9092', '192.168.100.125:9093']
+
+#Lock
+segment_change_lock = threading.Event()
+frame_acess_lock = threading.Event()
 
 
-def gen_segment_id(send_time):
-    global start_time
-    global segment_id
-    global checking_change
-    if (send_time - start_time).total_seconds()/60 > 1:
-    #if (send_time - start_time).total_seconds() > 5:
-        start_time = datetime.now()
-        segment_id = str(uuid4())
-        checking_change = True
-    return segment_id
+class  IntervalTask(threading.Thread):
+    def __init__(self, event: threading.Event, iter_time: int, call_back):
+        threading.Thread.__init__(self)
+        self.event = event
+        self.iter_time = iter_time*60
+        self.callback = call_back
 
-def encode(frame):
-    _, buff = cv2.imencode('.jpg', frame)
-    b64 = base64.b64encode(buff).decode()
-    global camera_id
-    send_time = datetime.now()
-    data = {
-        'video_id': camera_id,
-        'segment_id': gen_segment_id(send_time),
-        'frame': b64,
-        'send_time': str(send_time.timestamp())
-    }
-    return json.dumps(data).encode('utf-8')
+    def run(self):
+        # global segment_id
+        while True:
+            # segment_id = str(uuid4())
+            self.callback()
+            self.event.set()
+            time.sleep(self.iter_time)
 
-def create_video_writer(video_name, f_w, f_h):
-    return {
-        'writer':  cv2.VideoWriter(video_name+".avi",cv2.VideoWriter_fourcc('M','J','P','G'), 10, (f_w,f_h)),
-        'video_name': video_name+".avi"
-    }
+class UploadVideo(threading.Thread):
+    def __init__(self, cam_id, file_name):
+        self.cam_id = cam_id
+        self.file_name = file_name
 
-def upload_video(file_name):
-    url = f'http://master:9870/webhdfs/v1/video_cam/{camera_id}/{file_name}?op=CREATE'
-    file_path = ""+file_name
-    file = open(file_path, mode='rb')
-    res = requests.put(url, files={'form_field_name': file})
-    return res.ok
+    def run(self):
+        url = f'http://master:9870/webhdfs/v1/video_cam/{self.camera_id}/{self.file_name}?op=CREATE'
+        file_path = ""+ self.file_name
+        file = open(file_path, mode='rb')
+        res = requests.put(url, files={'form_field_name': file})
+        return res.ok
 
-def write_video(out ,video_name, frame, f_w, f_h):
-   global checking_change
-   if checking_change: 
-    out.get('writer').release()
-    upload_video(out.get('video_name'))
-    out = create_video_writer(video_name, f_w, f_h)
-    checking_change = False
-   out.get('writer').write(frame)
+class WriteVideo(threading.Thread):
+    def __init__(self, event: threading.Event, video_source, f_w: int, f_h:int):
+        threading.Thread.__init__(self)
+        self.event = event
+        self.f_w = f_w
+        self.f_h = f_h
+        self.video_source = video_source
+    
+    def create_video_writer(self, video_name, f_w, f_h):
+        return cv2.VideoWriter(video_name+".avi",cv2.VideoWriter_fourcc('M','J','P','G'), 10, (f_w,f_h))
 
-def publish_camera(cam):
+    def run(self):
+        global segment_id
+        global cam_id
+        global access_frame
+        segment_id_backup = segment_id
+        video_writer = self.create_video_writer(segment_id, self.f_w, self.f_h)
+        for frame in self.video_source():
+            if self.event.is_set():
+                video_writer.release()
+                upload_task = UploadVideo(camera_id, segment_id_backup)
+                upload_task.start()
+                upload_task.join()
+                segment_id_backup = segment_id
+                video_writer = self.create_video_writer(segment_id, self.f_w, self.f_h)
+                print(segment_id)
+            access_frame = frame
+            video_writer.write(frame)
+
+class Producer(IntervalTask):
+    def __init__(self, hosts:List[str], topic):
+        IntervalTask.__init__(self)
+        self.topic = topic
+        self.producer = KafkaProducer(bootstrap_servers=hosts, value_serializer=lambda x: self.encode(x))
+    
+    def encode(self, frame):
+        global segment_id
+        _, buff = cv2.imencode('.jpg', frame)
+        b64 = base64.b64encode(buff).decode()
+        global camera_id
+        send_time = datetime.now()
+        data = {
+            'video_id': camera_id,
+            'segment_id': segment_id,
+            'frame': b64,
+            'send_time': str(send_time.timestamp())
+        }
+        return json.dumps(data).encode('utf-8')
+
+    def run(self):
+        global segment_id
+        global access_frame
+        self.iter_time = int(self.iter_time/60)
+        while True:
+            send_frame = cv2.resize(access_frame, (640,640), interpolation=cv2.INTER_AREA)
+            self.producer.send(self.topic, send_frame)
+            time.sleep(self.iter_time)
+
+def set_segment_id():
+    global segment_id 
+    segment_id = str(uuid4())
+    
+def get_frames(): 
+    os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;udp"
+    ip = "rtsp://admin:thinh111@192.168.100.119:554/onvif1"
+    cap = cv2.VideoCapture(ip, cv2.CAP_FFMPEG)
+    print(cap.isOpened())
+    if not cap.isOpened():
+        print('Cannot open RTSP stream')
+        exit(-1)
     while True:
-        sucess, frame = cam.read()
-        if not sucess:
-            break;
-        time.sleep(3)
+        success, frame = cap.read()
+        if not success:
+            break
         yield frame
 
-def run(topic, video_path):
+def run(topic):
     global segment_id
-    producer = KafkaProducer(bootstrap_servers=hosts, value_serializer=lambda x: encode(x))
-    camera = cv2.VideoCapture("1.mp4")
-    out = create_video_writer(segment_id, int(camera.get(3)), int(camera.get(4)))
-    try:
-        for frame in publish_camera(camera):
-            send_frame = cv2.resize(frame, (640,640), interpolation=cv2.INTER_AREA)
-            producer.send(topic, send_frame)
-            write_video(out, segment_id, frame, int(camera.get(3)), int(camera.get(4)))
-    except Exception as e:
-        print(e)
-        sys.exit(1)
+    new_segment_event = threading.Event()
+    gen_segment_task = IntervalTask(new_segment_event, 1, set_segment_id)
+    write_video_task = WriteVideo(new_segment_event, get_frames, 1280, 720)
+    producer_task = Producer(hosts, topic)
 
+    gen_segment_task.start()
+    write_video_task.start()
+    producer_task.start()
+
+    gen_segment_task.join()
+    write_video_task.join()
+    producer_task.join()
+    
+    
 if __name__ == '__main__':
     if len(sys.argv) == 1:
         topic_name = "video"  # sys.argv[1]
-        video_path = "c"  # sys.argv[2]
-        run(topic_name, video_path)
+        # video_path = "c"  # sys.argv[2]
+        run(topic_name)
     else:
         print("dont have any topic or video")
