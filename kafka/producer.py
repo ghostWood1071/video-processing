@@ -92,18 +92,18 @@ class Producer(IntervalTask):
 
     def run(self):
         global segment_id
-        global access_frame
         self.iter_time = int(self.iter_time/60)
         while True:
-            self.callback(access_frame, self.producer, self.topic)
+            self.callback(self.producer, self.topic)
             time.sleep(self.iter_time)
 
 def set_segment_id():
     global segment_id 
     segment_id = str(uuid4())
 
-def send_to_kafka(frame, producer, topic):
-    send_frame = cv2.resize(frame, (640,640), interpolation=cv2.INTER_AREA)
+def send_to_kafka(producer, topic):
+    global access_frame
+    send_frame = cv2.resize(access_frame, (640,640), interpolation=cv2.INTER_AREA)
     producer.send(topic, send_frame)
     
 def get_frames(): 
