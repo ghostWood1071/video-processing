@@ -11,21 +11,7 @@ import threading
 from typing import *
 import os
 
-#data info
-global camera_id
-global segment_id
-global start_time
-global checking_change 
-camera_id = "c370a4d1-f4b9-4906-a66d-a7292b86ee3a"
-segment_id = str(uuid4())
-start_time = datetime.now()
 
-#hosting
-hosts = ['192.168.100.124:9092', '192.168.100.125:9093']
-
-#Lock
-segment_change_lock = threading.Event()
-frame_acess_lock = threading.Event()
 
 
 class  IntervalTask(threading.Thread):
@@ -132,7 +118,16 @@ def get_frames():
         yield frame
 
 def run(topic):
+    global camera_id
     global segment_id
+    global start_time
+    global checking_change 
+    camera_id = "c370a4d1-f4b9-4906-a66d-a7292b86ee3a"
+    segment_id = str(uuid4())
+    start_time = datetime.now()
+
+    hosts = ['192.168.100.124:9092', '192.168.100.125:9093']
+    
     new_segment_event = threading.Event()
     gen_segment_task = IntervalTask(new_segment_event, 1, set_segment_id)
     write_video_task = WriteVideo(new_segment_event, get_frames, 1280, 720)
