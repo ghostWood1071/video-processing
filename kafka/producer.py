@@ -58,7 +58,7 @@ class WriteVideo(threading.Thread):
 
     def run(self):
         global segment_id
-        global cam_id
+        global camera_id
         global access_frame
         segment_id_backup = segment_id
         video_writer = self.create_video_writer(segment_id, self.f_w, self.f_h)
