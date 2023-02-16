@@ -31,15 +31,19 @@ class  IntervalTask(threading.Thread):
 
 class UploadVideo(threading.Thread):
     def __init__(self, cam_id, file_name):
+        threading.Thread.__init__(self)
         self.cam_id = cam_id
         self.file_name = file_name
 
     def run(self):
-        url = f'http://master:9870/webhdfs/v1/video_cam/{self.camera_id}/{self.file_name}?op=CREATE'
-        file_path = ""+ self.file_name
-        file = open(file_path, mode='rb')
-        res = requests.put(url, files={'form_field_name': file})
-        return res.ok
+        try:
+            url = f'http://master:9870/webhdfs/v1/video_cam/{self.camera_id}/{self.file_name}?op=CREATE'
+            file_path = ""+ self.file_name
+            file = open(file_path, mode='rb')
+            res = requests.put(url, files={'form_field_name': file})
+            return res.ok
+        except Exception as e:
+            print(str(e))
 
 class WriteVideo(threading.Thread):
     def __init__(self, event: threading.Event, video_source, f_w: int, f_h:int):
@@ -103,6 +107,8 @@ def set_segment_id():
 
 def send_to_kafka(producer, topic):
     global access_frame
+    if access_frame is None:
+        return
     frame = access_frame
     send_frame = cv2.resize(frame, (640,640), interpolation=cv2.INTER_AREA)
     producer.send(topic, send_frame)
