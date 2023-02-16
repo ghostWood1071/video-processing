@@ -37,7 +37,7 @@ class UploadVideo(threading.Thread):
 
     def run(self):
         try:
-            url = f'http://master:9870/webhdfs/v1/video_cam/{self.camera_id}/{self.file_name}?op=CREATE'
+            url = f'http://master:9870/webhdfs/v1/video_cam/{self.cam_id}/{self.file_name}?op=CREATE'
             file_path = ""+ self.file_name
             file = open(file_path, mode='rb')
             res = requests.put(url, files={'form_field_name': file})
