@@ -58,7 +58,7 @@ class WriteVideo(threading.Thread):
         global access_frame
         segment_id_backup = segment_id
         video_writer = self.create_video_writer(segment_id, self.f_w, self.f_h)
-        for frame in self.video_source():
+        for frame in self.video_source:
             if self.event.is_set():
                 video_writer.release()
                 upload_task = UploadVideo(camera_id, segment_id_backup)
@@ -131,10 +131,10 @@ def run(topic):
     start_time = datetime.now()
 
     hosts = ['192.168.100.124:9092', '192.168.100.125:9093']
-
+    camsource = get_frames()
     new_segment_event = threading.Event()
     gen_segment_task = IntervalTask(new_segment_event, 1, set_segment_id)
-    write_video_task = WriteVideo(new_segment_event, get_frames, 1280, 720)
+    write_video_task = WriteVideo(new_segment_event, camsource, 1280, 720)
     producer_task = Producer(hosts, topic, 3, send_to_kafka)
 
     gen_segment_task.start()
