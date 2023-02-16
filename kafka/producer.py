@@ -72,11 +72,10 @@ class WriteVideo(threading.Thread):
 
 class Producer(IntervalTask):
     def __init__(self, hosts:List[str], topic, iter_time, callback):
-        IntervalTask.__init__(self)
+        IntervalTask.__init__(self, None, iter_time, callback)
         self.topic = topic
         self.producer = KafkaProducer(bootstrap_servers=hosts, value_serializer=lambda x: self.encode(x))
-        self.iter_time = iter_time
-        self.callback = callback
+        
     def encode(self, frame):
         global segment_id
         _, buff = cv2.imencode('.jpg', frame)
