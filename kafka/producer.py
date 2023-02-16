@@ -12,8 +12,6 @@ from typing import *
 import os
 os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;udp"
 
-
-
 class  IntervalTask(threading.Thread):
     def __init__(self, event: threading.Event, iter_time: int, call_back):
         threading.Thread.__init__(self)
@@ -22,9 +20,7 @@ class  IntervalTask(threading.Thread):
         self.callback = call_back
 
     def run(self):
-        # global segment_id
         while True:
-            # segment_id = str(uuid4())
             self.callback()
             self.event.set()
             time.sleep(self.iter_time)
@@ -55,6 +51,11 @@ class WriteVideo(threading.Thread):
     
     def create_video_writer(self, video_name, f_w, f_h):
         return cv2.VideoWriter(video_name+".avi",cv2.VideoWriter_fourcc('M','J','P','G'), 10, (f_w,f_h))
+ 
+    def up_video(self, camera_id, segment_id):
+        upload_task = UploadVideo(camera_id, segment_id)
+        upload_task.start()
+        upload_task.join()
 
     def run(self):
         global segment_id
@@ -65,9 +66,7 @@ class WriteVideo(threading.Thread):
         for frame in self.video_source:
             if self.event.is_set():
                 video_writer.release()
-                upload_task = UploadVideo(camera_id, segment_id_backup)
-                upload_task.start()
-                upload_task.join()
+                self.up_video(camera_id, segment_id_backup)
                 segment_id_backup = segment_id
                 video_writer = self.create_video_writer(segment_id, self.f_w, self.f_h)
                 print(segment_id)
@@ -104,7 +103,7 @@ class Producer(IntervalTask):
 
 def set_segment_id():
     global segment_id 
-    segment_id = str(uuid4())
+    segment_id = str(datetime.now().timestamp())
 
 def send_to_kafka(producer, topic):
     global access_frame
@@ -135,7 +134,7 @@ def run(topic):
     global access_frame
     access_frame = None
     camera_id = "c370a4d1-f4b9-4906-a66d-a7292b86ee3a"
-    segment_id = str(uuid4())
+    segment_id = str(datetime.now().timestamp())
     start_time = datetime.now()
 
     hosts = ['192.168.100.124:9092', '192.168.100.125:9093']
@@ -156,8 +155,7 @@ def run(topic):
     
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        topic_name = "video"  # sys.argv[1]
-        # video_path = "c"  # sys.argv[2]
+        topic_name = "video"
         run(topic_name)
     else:
         print("dont have any topic or video")
