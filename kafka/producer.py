@@ -33,7 +33,7 @@ class UploadVideo(threading.Thread):
     def __init__(self, cam_id, file_name):
         threading.Thread.__init__(self)
         self.cam_id = cam_id
-        self.file_name = file_name
+        self.file_name = file_name+".avi"
 
     def run(self):
         try:
