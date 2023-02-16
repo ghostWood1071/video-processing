@@ -10,7 +10,7 @@ import requests
 import threading
 from typing import *
 import os
-
+os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;udp"
 
 
 
@@ -103,11 +103,11 @@ def set_segment_id():
 
 def send_to_kafka(producer, topic):
     global access_frame
-    send_frame = cv2.resize(access_frame, (640,640), interpolation=cv2.INTER_AREA)
+    frame = access_frame
+    send_frame = cv2.resize(frame, (640,640), interpolation=cv2.INTER_AREA)
     producer.send(topic, send_frame)
     
 def get_frames(): 
-    os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;udp"
     ip = "rtsp://admin:thinh111@192.168.100.119:554/onvif1"
     cap = cv2.VideoCapture(ip, cv2.CAP_FFMPEG)
     print(cap.isOpened())
