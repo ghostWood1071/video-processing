@@ -108,7 +108,7 @@ def send_to_kafka(producer, topic):
     producer.send(topic, send_frame)
     
 def get_frames(): 
-    ip = "rtsp://admin:thinh111@192.168.100.119:554/onvif1"
+    ip = "rtsp://admin:thinh111@192.168.100.110:554/onvif1"
     cap = cv2.VideoCapture(ip, cv2.CAP_FFMPEG)
     print(cap.isOpened())
     if not cap.isOpened():
@@ -126,6 +126,7 @@ def run(topic):
     global start_time
     global checking_change 
     global access_frame
+    access_frame = None
     camera_id = "c370a4d1-f4b9-4906-a66d-a7292b86ee3a"
     segment_id = str(uuid4())
     start_time = datetime.now()
