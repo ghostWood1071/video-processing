@@ -71,6 +71,7 @@ class WriteVideo(threading.Thread):
                 segment_id_backup = segment_id
                 video_writer = self.create_video_writer(segment_id, self.f_w, self.f_h)
                 print(segment_id)
+                self.event.clear()
             access_frame = frame
             video_writer.write(frame)
 
