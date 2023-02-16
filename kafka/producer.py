@@ -71,11 +71,12 @@ class WriteVideo(threading.Thread):
             video_writer.write(frame)
 
 class Producer(IntervalTask):
-    def __init__(self, hosts:List[str], topic):
+    def __init__(self, hosts:List[str], topic, iter_time, callback):
         IntervalTask.__init__(self)
         self.topic = topic
         self.producer = KafkaProducer(bootstrap_servers=hosts, value_serializer=lambda x: self.encode(x))
-    
+        self.iter_time = iter_time
+        self.callback = callback
     def encode(self, frame):
         global segment_id
         _, buff = cv2.imencode('.jpg', frame)
@@ -95,13 +96,16 @@ class Producer(IntervalTask):
         global access_frame
         self.iter_time = int(self.iter_time/60)
         while True:
-            send_frame = cv2.resize(access_frame, (640,640), interpolation=cv2.INTER_AREA)
-            self.producer.send(self.topic, send_frame)
+            self.callback(access_frame, self.producer, self.topic)
             time.sleep(self.iter_time)
 
 def set_segment_id():
     global segment_id 
     segment_id = str(uuid4())
+
+def send_to_kafka(frame, producer, topic):
+    send_frame = cv2.resize(frame, (640,640), interpolation=cv2.INTER_AREA)
+    producer.send(topic, send_frame)
     
 def get_frames(): 
     os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;udp"
@@ -127,11 +131,11 @@ def run(topic):
     start_time = datetime.now()
 
     hosts = ['192.168.100.124:9092', '192.168.100.125:9093']
-    
+
     new_segment_event = threading.Event()
     gen_segment_task = IntervalTask(new_segment_event, 1, set_segment_id)
     write_video_task = WriteVideo(new_segment_event, get_frames, 1280, 720)
-    producer_task = Producer(hosts, topic)
+    producer_task = Producer(hosts, topic, 3, send_to_kafka)
 
     gen_segment_task.start()
     write_video_task.start()
