@@ -9,8 +9,6 @@ from typing import *
 import detect
 from pyspark.sql import Row
 
-a = Row()
-a.asDict().keys()
 
 # create session and context
 session = SparkSession.builder\
