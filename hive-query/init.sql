@@ -1,5 +1,14 @@
-CREATE EXTERNAL TABLE hourly_weather(rowkey STRING, area_code STRING, time STRING, temp INT, humi INT, event STRING)
+CREATE EXTERNAL TABLE video_processing
+(rowkey STRING, 
+video_id STRING, 
+segment_id STRING, 
+send_time STRING, 
+frame_id STRING, 
+frame STRING,
+name STRING)
 STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
-WITH SERDEPROPERTIES ('hbase.columns.mapping' = ':key, context:area_code, context:time, weather_info:temp, weather_info:humi, weather_info:event')
-TBLPROPERTIES ('hbase.table.name' = 'hourly_weather');
+WITH SERDEPROPERTIES 
+('hbase.columns.mapping' = 
+':key, video:video_id, video:segment_id, video:send_time, video:frame_id, video:frame, object:name',)
+TBLPROPERTIES ('hbase.table.name' = 'video-processing');
 
