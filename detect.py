@@ -102,7 +102,8 @@ def decode_frame(string: str):
 
 def loadData(dataframe):
     row = dataframe.values.tolist()[0][0]
-    print("row data", row)
+    print("row data ", row.asDict().keys())
+    print("row data send_time: ", row.asDict().get('send_time'))
     torch.backends.cudnn.benchmark = True  
     img_size=np.array([640,640])
     stride=32 
