@@ -102,6 +102,7 @@ def decode_frame(string: str):
 
 def loadData(dataframe):
     row = dataframe.values.tolist()[0][0]
+    print("row data", row)
     torch.backends.cudnn.benchmark = True  
     img_size=np.array([640,640])
     stride=32 
@@ -111,7 +112,7 @@ def loadData(dataframe):
     im = np.stack([letterbox(x, img_size, stride=stride, auto=auto)[0] for x in [im0]])  # resize
     im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW
     im = np.ascontiguousarray(im) 
-    print(row)
+    
     return row['video_id'], im, im0, row['segment_id'], row['send_time']
 
 def draw_box(img, box, label, color=(128, 128, 128),txt_color=(255, 255, 255), line_width=10):
