@@ -155,7 +155,7 @@ def add_frames(video_id, segment_id, frame_id, send_time, frame):
     table.put(frame_id, {
         'video:video_id': video_id,
         'video:segment_id': segment_id,
-        'frame:frame_id': frame_id,
+        'frame:frame_id': str(frame_id),
         'frame:send_time': str(send_time),
         'frame:content': encode_frame(frame)
         }
