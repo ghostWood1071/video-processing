@@ -65,8 +65,8 @@ class WriteVideo(threading.Thread):
             'video:video_id': camera_id,
             'video:segment_id': segment_id,
             'video:url': 'http://master:9870/webhdfs/v1/video_cam/{self.cam_id}/{self.file_name}?op=OPEN',
-            'time:time_start': float(segment_id), 
-            'time:time_end': datetime.now().timestamp()
+            'time:time_start': segment_id, 
+            'time:time_end': str(datetime.now().timestamp())
         })
         conn.close()
         
