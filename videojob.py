@@ -60,7 +60,7 @@ def process(row):
     data = {
         'frame:video_id': row['video_id'],
         'frame:segment_id': row['segment_id'],
-        'video:frame_id': row['frame_id'],
+        'frame:frame_id': row['frame_id'],
         'object:name': row['name'],
         'object:upper': row['upper'],
         'object:lower': row['lower']
