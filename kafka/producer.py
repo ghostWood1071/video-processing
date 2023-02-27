@@ -64,7 +64,7 @@ class WriteVideo(threading.Thread):
         table.put(str(segment_id), {
             'video:video_id': camera_id,
             'video:segment_id': segment_id,
-            'video:url': 'http://master:9870/webhdfs/v1/video_cam/{self.cam_id}/{self.file_name}?op=OPEN',
+            'video:url': f'http://master:9870/webhdfs/v1/video_cam/{self.cam_id}/{self.file_name}?op=OPEN',
             'time:time_start': segment_id, 
             'time:time_end': str(datetime.now().timestamp())
         })
@@ -159,7 +159,7 @@ def run(topic):
 
     camsource = get_frames()
     new_segment_event = threading.Event()
-    gen_segment_task = IntervalTask(new_segment_event, 1, set_segment_id)
+    gen_segment_task = IntervalTask(new_segment_event, 5, set_segment_id)
     write_video_task = WriteVideo(new_segment_event, camsource, 1280, 720)
     producer_task = Producer(hosts, topic, 3, send_to_kafka)
 
