@@ -142,11 +142,37 @@ def update_object_quantity(cam_id, quantity):
   table = conn.table('cameras') 
   row = table.row(bytes(cam_id, 'utf-8'))
   update_value =  bytes(str(quantity), 'utf-8')
-  if row[b'object:quantity'] != quantity:
-    table.put(cam_id, {'object:quantity': update_value})
+  if row[b'info:quantity'] != quantity:
+    table.put(cam_id, {'info:quantity': update_value})
     is_updated = True
   conn.close()
   return is_updated
+
+def add_frames(video_id, segment_id, frame_id, send_time, frame):
+    conn = Connection(host='192.168.100.126', port=9090, autoconnect=False)
+    conn.open()
+    table  =conn.table('frames')
+    table.put(frame_id, {
+        'video:video_id': video_id,
+        'video:segment_id': segment_id,
+        'frame:frame_id': frame_id,
+        'frame:send_time': str(send_time),
+        'frame:content': encode_frame(frame)
+        }
+    )
+    conn.close()
+
+def create_record(video_id, segment_id, frame_id, name):
+    obj = {
+            'key': str(uuid4()),
+            'video_id': video_id,
+            'segment_id': segment_id,
+            'frame_id': str(frame_id),
+            'name': name,
+            'upper': '',
+            'lower': '',
+        }
+    return obj
 
 @smart_inference_mode()
 def run( 
@@ -192,40 +218,24 @@ def run(
             pred = non_max_suppression(pred, conf_thres, iou_thres, classes, agnostic_nms, max_det=max_det)
 
         
-        for det in pred:  # per image
-            is_updated = update_object_quantity(video_id, len(det))
+        for det in pred:
             seen += 1
             im0 = im0s.copy()
+            objs = []
             if len(det):
                 det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
                 for *xyxy, conf, cls in reversed(det):
-                    c = int(cls)  # integer class
-                    label = f'{names[c]} {conf:.2f}'
-                    im0 = draw_box(im0, xyxy, label, colors(c, True), line_width=line_thickness)
-                    print({"name": names[c], "segment": segment_id})
-                    obj = {
-                        'key': str(uuid4()),
-                        'video_id': video_id,
-                        'segment_id': segment_id,
-                        'frame_id': str(frame_id),
-                        'name': names[c],
-                        'frame': encode_frame(im0),
-                        'send_time': send_time,
-                        'changed': is_updated
-                    }
-                    
-                    yield pd.DataFrame([obj])
-            else:
-                obj = {
-                        'key': str(uuid4()),
-                        'video_id': video_id,
-                        'segment_id': segment_id,
-                        'frame_id': str(frame_id),
-                        'name': 'nothing',
-                        'frame': encode_frame(im0),
-                        'send_time': send_time,
-                        'changed': is_updated
-                    }
-                yield pd.DataFrame([obj])
+                    if conf > 0.6:
+                        c = int(cls)
+                        label = f'{names[c]} {conf:.2f}'
+                        im0 = draw_box(im0, xyxy, label, colors(c, True), line_width=line_thickness)
+                        print({"name": names[c], "segment": segment_id})
+                        obj = create_record(video_id, segment_id, frame_id, names[c])
+                        objs.append(obj)
+                is_updated = update_object_quantity(video_id, len(objs))
+                if is_updated:
+                    add_frames(video_id, segment_id, frame_id, send_time, im0)
+                    for obj in objs:
+                        yield pd.DataFrame([obj])
                 
     

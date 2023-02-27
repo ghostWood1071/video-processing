@@ -10,7 +10,9 @@ import requests
 import threading
 from typing import *
 import os
-os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;udp"
+from happybase import Connection
+
+
 
 class  IntervalTask(threading.Thread):
     def __init__(self, event: threading.Event, iter_time: int, call_back):
@@ -48,14 +50,26 @@ class WriteVideo(threading.Thread):
         self.f_w = f_w
         self.f_h = f_h
         self.video_source = video_source
+        self.hbase_table = 'segments'
     
     def create_video_writer(self, video_name, f_w, f_h):
         return cv2.VideoWriter(video_name+".avi",cv2.VideoWriter_fourcc('M','J','P','G'), 10, (f_w,f_h))
  
-    def up_video(self, camera_id, segment_id):
-        upload_task = UploadVideo(camera_id, segment_id)
-        upload_task.start()
-        upload_task.join()
+    def up_segement_to_Hbase(self, camera_id, segment_id):
+        global hbase_host
+        global hbase_port
+        conn = Connection(hbase_host, port=hbase_port, autoconnect=False)
+        conn.open()
+        table = conn.table(self.hbase_table)
+        table.put(str(segment_id), {
+            'video:video_id': camera_id,
+            'video:segment_id': segment_id,
+            'video:url': 'http://master:9870/webhdfs/v1/video_cam/{self.cam_id}/{self.file_name}?op=OPEN',
+            'time:time_start': float(segment_id), 
+            'time:time_end': datetime.now().timestamp()
+        })
+        conn.close()
+        
 
     def run(self):
         global segment_id
@@ -66,7 +80,7 @@ class WriteVideo(threading.Thread):
         for frame in self.video_source:
             if self.event.is_set():
                 video_writer.release()
-                self.up_video(camera_id, segment_id_backup)
+                self.up_segement_to_Hbase(camera_id, segment_id_backup)
                 segment_id_backup = segment_id
                 video_writer = self.create_video_writer(segment_id, self.f_w, self.f_h)
                 print(segment_id)
@@ -90,7 +104,7 @@ class Producer(IntervalTask):
             'video_id': camera_id,
             'segment_id': segment_id,
             'frame': b64,
-            'send_time': str(send_time.timestamp())
+            'send_time': send_time.timestamp()
         }
         return json.dumps(data).encode('utf-8')
 
@@ -132,12 +146,17 @@ def run(topic):
     global start_time
     global checking_change 
     global access_frame
+    global hbase_host
+    global hbase_port
     access_frame = None
     camera_id = "c370a4d1-f4b9-4906-a66d-a7292b86ee3a"
     segment_id = str(datetime.now().timestamp())
     start_time = datetime.now()
-
+    hbase_host = '192.168.100.126'
+    hbase_port = 9090
     hosts = ['192.168.100.124:9092', '192.168.100.125:9093']
+    os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;udp"
+
     camsource = get_frames()
     new_segment_event = threading.Event()
     gen_segment_task = IntervalTask(new_segment_event, 1, set_segment_id)

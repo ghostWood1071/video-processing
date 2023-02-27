@@ -43,9 +43,8 @@ schema = StructType([
   StructField('segment_id', StringType()),
   StructField('frame_id', StringType()),
   StructField('name', StringType()),
-  StructField('frame', StringType()),
-  StructField('send_time', FloatType()),
-  StructField('changed', BooleanType())
+  StructField('upper', StringType()),
+  StructField('lower', StringType()),
 ])
 
 
@@ -57,14 +56,14 @@ def process_batch_udf(data):
 def process(row):
     conn = Connection(host='192.168.100.126', port=9090, autoconnect=False)
     conn.open()
-    table = conn.table('video-processing')
+    table = conn.table('trackings')
     data = {
-        'video:video_id': row['video_id'],
-        'video:segment_id': row['segment_id'],
-        'video:send_time': str(row['send_time']),
+        'frame:video_id': row['video_id'],
+        'frame:segment_id': row['segment_id'],
         'video:frame_id': row['frame_id'],
         'object:name': row['name'],
-        'video:frame': row['frame'],
+        'object:upper': row['upper'],
+        'object:lower': row['lower']
     }
     table.put(f'{row["key"]}', data)
     conn.close()
@@ -74,14 +73,13 @@ cols = 'video_id string, segment_id string, frame string, send_time float'
 data_streaming_df = streaming_df.select(col('value').cast('string').name('value'))\
                                 .select(from_json(col('value'), cols).name('value'))\
                                 .mapInPandas(process_batch_udf, schema)\
-                                .where(col('changed') == True)\
                                 .select(col('key'), 
                                         col('video_id'), 
                                         col('segment_id'), 
                                         col('frame_id'), 
                                         col('name'), 
-                                        col('frame'),
-                                        col('send_time'))
+                                        col('upper'),
+                                        col('lower'))
 query = data_streaming_df.writeStream\
 .foreach(process)\
 .start()
