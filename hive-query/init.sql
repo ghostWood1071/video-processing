@@ -40,5 +40,5 @@ send_time FLOAT,
 content STRING)
 STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
 WITH SERDEPROPERTIES 
-('hbase.columns.mapping' = ':key, video:video_id, video:url, time:time_end, time:time_start')
+('hbase.columns.mapping' = ':key, video:video_id, video:segment_id, frame:send_time, frame:content')
 TBLPROPERTIES ('hbase.table.name' = 'frames');
