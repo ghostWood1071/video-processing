@@ -23,7 +23,7 @@ CREATE EXTERNAL TABLE trackings
 (rowkey STRING, 
 video_id STRING, 
 segment_id STRING
-frame_id STRING
+frame_id STRING,
 name STRING, 
 upper STRING, 
 lower STRING)
