@@ -64,7 +64,7 @@ class WriteVideo(threading.Thread):
         table.put(str(segment_id), {
             'video:video_id': camera_id,
             'video:segment_id': segment_id,
-            'video:url': f'http://master:9870/webhdfs/v1/video_cam/{self.cam_id}/{self.file_name}?op=OPEN',
+            'video:url': f'http://master:9870/webhdfs/v1/video_cam/{camera_id}/{segment_id}?op=OPEN',
             'time:time_start': segment_id, 
             'time:time_end': str(datetime.now().timestamp())
         })
