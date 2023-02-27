@@ -152,7 +152,7 @@ def add_frames(video_id, segment_id, frame_id, send_time, frame):
     conn = Connection(host='192.168.100.126', port=9090, autoconnect=False)
     conn.open()
     table  =conn.table('frames')
-    table.put(frame_id, {
+    table.put(str(frame_id), {
         'video:video_id': video_id,
         'video:segment_id': segment_id,
         'frame:frame_id': str(frame_id),
