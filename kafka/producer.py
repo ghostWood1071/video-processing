@@ -159,7 +159,7 @@ def run(topic):
 
     camsource = get_frames()
     new_segment_event = threading.Event()
-    gen_segment_task = IntervalTask(new_segment_event, 5, set_segment_id)
+    gen_segment_task = IntervalTask(new_segment_event, 4, set_segment_id)
     write_video_task = WriteVideo(new_segment_event, camsource, 1280, 720)
     producer_task = Producer(hosts, topic, 3, send_to_kafka)
 
