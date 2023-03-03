@@ -160,6 +160,8 @@ def add_frames(video_id, segment_id, frame_id, send_time, frame):
         'frame:content': encode_frame(frame)
         }
     )
+    table2 = conn.table('segments')
+    table2.put(str(segment_id), {'video:cover': segment_id})
     conn.close()
 
 def create_record(video_id, segment_id, frame_id, name):

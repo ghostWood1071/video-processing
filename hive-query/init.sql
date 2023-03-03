@@ -12,11 +12,12 @@ CREATE EXTERNAL TABLE segments
 (rowkey STRING, 
 video_id STRING, 
 url STRING, 
+cover STRING,
 time_start FLOAT, 
 time_end FLOAT)
 STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
 WITH SERDEPROPERTIES 
-('hbase.columns.mapping' = ':key, video:video_id, video:url, time:time_end, time:time_start')
+('hbase.columns.mapping' = ':key, video:video_id, video:url, video:cover, time:time_end, time:time_start')
 TBLPROPERTIES ('hbase.table.name' = 'segments');
 
 CREATE EXTERNAL TABLE trackings
