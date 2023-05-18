@@ -1,0 +1,19 @@
+create 'cameras', 'info'
+create 'segments', 'video', 'time'
+create 'frames', 'video', 'frame'
+create 'people', 'frame', 'object'
+create 'things', 'frame', 'object'
+
+put 'cameras', 'c370a4d1-f4b9-4906-a66d-a7292b86ee3a', 'info: location', 'CNPM'
+
+put 'cameras', 'c370a4d1-f4b9-4906-a66d-a7292b86ee3a', 'info:quantity', '0'
+
+
+disable  'segments'
+drop 'segments'
+disable  'frames'
+drop 'frames'
+disable  'people'
+drop 'people'
+disable  'things'
+drop 'things'

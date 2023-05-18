@@ -13,6 +13,8 @@ from  utils.torch_utils import  smart_inference_mode
 import pandas as pd
 from datetime import datetime
 from happybase import *
+from bodypart.PeopleSeg import *
+from bodypart.color_thief import ColorThief
 
 class Ensemble(nn.ModuleList):
     # Ensemble of models
@@ -102,8 +104,6 @@ def decode_frame(string: str):
 
 def loadData(dataframe):
     row = dataframe.values.tolist()[0][0]
-    print("row data ", row.keys())
-    print("row data send_time: ", row.get('send_time'))
     torch.backends.cudnn.benchmark = True  
     img_size=np.array([640,640])
     stride=32 
@@ -161,20 +161,22 @@ def add_frames(video_id, segment_id, frame_id, send_time, frame):
         }
     )
     table2 = conn.table('segments')
-    table2.put(str(segment_id), {'video:cover': segment_id})
+    table2.put(str(segment_id), {'video:cover': str(frame_id)})
     conn.close()
 
-def create_record(video_id, segment_id, frame_id, name):
+def create_record(video_id, segment_id, frame_id, name, upper='', lower='', color=''):
     obj = {
             'key': str(uuid4()),
             'video_id': video_id,
             'segment_id': segment_id,
             'frame_id': str(frame_id),
             'name': name,
-            'upper': '',
-            'lower': '',
+            'upper': upper,
+            'lower': lower,
+            'color': color
         }
     return obj
+
 
 @smart_inference_mode()
 def run( 
@@ -199,6 +201,9 @@ def run(
     model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
     stride, names= model.stride, model.names
     imgsz = check_img_size(imgsz, s=stride) 
+    seg_model = make_deeplab(device)
+    preprocess = create_preprocess()
+    
     # dataset = loadData()
     seen, dt = 0, (Profile(), Profile(), Profile())
 
@@ -226,13 +231,19 @@ def run(
             objs = []
             if len(det):
                 det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
-                for *xyxy, conf, cls in reversed(det):
+                for *box, conf, cls in reversed(det):
                     if conf > 0.6:
                         c = int(cls)
                         label = f'{names[c]} {conf:.2f}'
-                        im0 = draw_box(im0, xyxy, label, colors(c, True), line_width=line_thickness)
-                        print({"name": names[c], "segment": segment_id})
-                        obj = create_record(video_id, segment_id, frame_id, names[c])
+                        im0 = draw_box(im0, box, label, colors(c, True), line_width=line_thickness)
+                        p1, p2 = (int(box[0]), int(box[1])), (int(box[2]), int(box[3]))
+                        obj_img = im0s[p1[1]:p2[1], p1[0]:p2[0]]
+                        if(names[c] == 'person'):
+                            upper, lower = detect(seg_model, preprocess, obj_img, device)
+                            obj = create_record(video_id, segment_id, frame_id, names[c], upper, lower)
+                        else:
+                            color = get_color_from_image(obj_img)
+                            obj = create_record(video_id, segment_id, frame_id, names[c], color=color)
                         objs.append(obj)
                 is_updated = update_object_quantity(video_id, len(objs))
                 if is_updated:

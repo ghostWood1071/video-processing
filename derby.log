@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Tue May 09 11:17:10 ICT 2023:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-0187-feba-39b0-00000f276300 
+on database directory memory:/home/hduser/Desktop/video-processing with class loader sun.misc.Launcher$AppClassLoader@4ccabbaa 
+Loaded from file:/usr/local/spark/jars/derby-10.14.2.0.jar
+java.vendor=Private Build
+java.runtime.version=1.8.0_362-8u362-ga-0ubuntu1~20.04.1-b09
+user.dir=/home/hduser/Desktop/video-processing
+os.name=Linux
+os.arch=amd64
+os.version=5.15.0-69-generic
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

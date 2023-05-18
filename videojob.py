@@ -45,6 +45,7 @@ schema = StructType([
   StructField('name', StringType()),
   StructField('upper', StringType()),
   StructField('lower', StringType()),
+  StructField('color', StringType())
 ])
 
 
@@ -56,16 +57,28 @@ def process_batch_udf(data):
 def process(row):
     conn = Connection(host='192.168.100.126', port=9090, autoconnect=False)
     conn.open()
-    table = conn.table('trackings')
-    data = {
+    print("----------------------",row)
+    if (row['name'] == 'person'):
+      table = conn.table('people')
+      data = {
         'frame:video_id': row['video_id'],
         'frame:segment_id': row['segment_id'],
         'frame:frame_id': row['frame_id'],
         'object:name': row['name'],
         'object:upper': row['upper'],
-        'object:lower': row['lower']
-    }
-    table.put(f'{row["key"]}', data)
+        'object:lower': row['lower'],
+      }
+      table.put(f'{row["key"]}', data)
+    else:
+      table = conn.table('things')
+      data = {
+        'frame:video_id': row['video_id'],
+        'frame:segment_id': row['segment_id'],
+        'frame:frame_id': row['frame_id'],
+        'object:name': row['name'],
+        'object:color': row['color'],
+      }
+      table.put(f'{row["key"]}', data)
     conn.close()
 
 # query data
@@ -79,7 +92,8 @@ data_streaming_df = streaming_df.select(col('value').cast('string').name('value'
                                         col('frame_id'), 
                                         col('name'), 
                                         col('upper'),
-                                        col('lower'))
+                                        col('lower'),
+                                        col('color'))
 query = data_streaming_df.writeStream\
 .foreach(process)\
 .start()
