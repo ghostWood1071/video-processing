@@ -55,7 +55,7 @@ def process_batch_udf(data):
     
 
 def process(row):
-    conn = Connection(host='192.168.100.124', port=9090, autoconnect=False)
+    conn = Connection(host='192.168.100.126', port=9090, autoconnect=False)
     conn.open()
     print("----------------------",row)
     if (row['name'] == 'person'):
