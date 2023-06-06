@@ -192,7 +192,7 @@ def run(topic):
     camera_id = "c370a4d1-f4b9-4906-a66d-a7292b86ee3a"
     segment_id = str(uuid4())
     start_time = datetime.now().timestamp()
-    hbase_host = '192.168.100.124'
+    hbase_host = '192.168.100.126'
     hbase_port = 9090
     hosts = ['192.168.100.124:9092', '192.168.100.125:9093']
     os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;udp"
