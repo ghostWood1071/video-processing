@@ -5,9 +5,13 @@ create 'people', 'frame', 'object'
 create 'things', 'frame', 'object'
 
 put 'cameras', 'c370a4d1-f4b9-4906-a66d-a7292b86ee3a', 'info: location', 'CNPM'
-
 put 'cameras', 'c370a4d1-f4b9-4906-a66d-a7292b86ee3a', 'info:quantity', '0'
 
+put 'cameras', 'c370a4d1-f4b9-4906-a66d-a7292b86ee3b', 'info:location', 'CNPM1'
+put 'cameras', 'c370a4d1-f4b9-4906-a66d-a7292b86ee3b', 'info:quantity', '0'
+
+put 'cameras', 'c370a4d1-f4b9-4906-a66d-a7292b86ee3c', 'info:location', 'CNPM2' 
+put 'cameras', 'c370a4d1-f4b9-4906-a66d-a7292b86ee3c', 'info:quantity', '0'
 
 disable  'segments'
 drop 'segments'
@@ -17,3 +21,11 @@ disable  'people'
 drop 'people'
 disable  'things'
 drop 'things'
+
+
+put 'segments', '0c3924e4-5c7f-49b7-b1bf-02c5ff944381', 'video:url','http://master:9870/webhdfs/v1/video_cam/c370a4d1-f4b9-4906-a66d-a7292b86ee3b/0c3924e4-5c7f-49b7-b1bf-02c5ff944381.mp4?op=OPEN'
+put 'segments', '4eda29ae-3028-43d6-9ef7-c5f81e3b247a',	'video:url','http://master:9870/webhdfs/v1/video_cam/c370a4d1-f4b9-4906-a66d-a7292b86ee3a/4eda29ae-3028-43d6-9ef7-c5f81e3b247a.mp4?op=OPEN'
+put 'segments', 'a164b33d-265f-46a1-8c29-69251007a113' ,  'video:url','http://master:9870/webhdfs/v1/video_cam/c370a4d1-f4b9-4906-a66d-a7292b86ee3a/a164b33d-265f-46a1-8c29-69251007a113.mp4?op=OPEN'
+put 'segments', 'a5b28501-2b14-40c5-90e9-6d656b53f56e',	'video:url','http://master:9870/webhdfs/v1/video_cam/c370a4d1-f4b9-4906-a66d-a7292b86ee3c/a5b28501-2b14-40c5-90e9-6d656b53f56e.mp4?op=OPEN'
+put 'segments', 'a5f38895-e665-4016-a9b6-6c45fcf1f002', 'video:url','http://master:9870/webhdfs/v1/video_cam/c370a4d1-f4b9-4906-a66d-a7292b86ee3a/a5f38895-e665-4016-a9b6-6c45fcf1f002.mp4?op=OPEN'
+put 'segments', 'c9db50fc-0395-4cd2-a7aa-f7cb17c99d01',	'video:url','http://master:9870/webhdfs/v1/video_cam/c370a4d1-f4b9-4906-a66d-a7292b86ee3c/c9db50fc-0395-4cd2-a7aa-f7cb17c99d01.mp4?op=OPEN'
